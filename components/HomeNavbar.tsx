@@ -23,7 +23,7 @@ const HomeNavbar = () => {
       <div className="bg-primary/80 text-primary-foreground p-2 text-sm sm:text-base md:text-lg font-bold tracking-wide flex-center">
         <Link href="tel:2032086095" className="hover:underline">
           <PhoneCall className="inline mr-3 size-5.5" />
-          CALL US NOW: (203) 208-6095 (demo website)
+          CALL US NOW: (203) 208-6095
         </Link>
       </div>
 
