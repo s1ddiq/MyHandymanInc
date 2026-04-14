@@ -1,3 +1,4 @@
+import QuoteForm from "@/components/QuoteForm";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -36,50 +37,60 @@ export default function RoofRepairPage() {
       {/* Hero Section */}
       <section className="relative">
         <Image
-          src="/roof-repair-3.jpg"
+          src="/roof-repair-hero.jpg"
           alt="Roof Repair"
-          layout="fill"
-          objectFit="cover"
-          className="z-1 grayscale-50"
+          fill
+          className="object-cover"
+          priority
         />
-        <div className="absolute inset-0 bg-black/30 grayscale-50 z-2"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 z-3">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium mb-6 text-white/80">
-              <MapPin className="w-4 h-4" />
-              Serving Orange & Woodbridge, CT Since 2012
+        <div className="absolute inset-0 bg-black/50"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
+          <div className="grid lg:grid-cols-2 gap-8 items-center">
+            {/* Left side - Text content */}
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium mb-6 text-white">
+                <MapPin className="w-4 h-4" />
+                Serving Orange & Woodbridge, CT Since 2012
+              </div>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white">
+                Fast & Reliable Roof Leak Repair
+              </h1>
+              <p className="mt-6 text-lg md:text-xl text-white/90">
+                Protecting homes in Orange and Woodbridge, Connecticut from
+                water damage. Same-day service. Free estimates. Family-owned.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-4">
+                <Link href="tel:+12034413471">
+                  <Button className="gap-2">
+                    <PhoneCall className="size-5" />
+                    Call (203) 441-3471
+                  </Button>
+                </Link>
+                <Link href="sms:+12034413471">
+                  <Button
+                    variant="outline"
+                    className="gap-2 bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20"
+                  >
+                    <MessageCircle className="size-5" />
+                    Text Us
+                  </Button>
+                </Link>
+              </div>
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white">
-              Fast & Reliable Roof Leak Repair
-            </h1>
-            <p className="mt-6 text-lg md:text-xl text-white/90 max-w-2xl">
-              Protecting homes in Orange and Woodbridge, Connecticut from water
-              damage. Same-day service. Free estimates. Family-owned.
-            </p>
-            <div className="mt-8 flex flex-col sm:flex-row gap-4">
-              <Link href="tel:+12034413471" className="flex items-center gap-2">
-                <Button>
-                  <PhoneCall className="size-5.5" />
-                  Call (203) 441-3471
-                </Button>
-              </Link>
-              <Link href="sms:+12034413471" className="flex items-center gap-2">
-                <Button variant="outline">
-                  <MessageCircle className="size-5.5" />
-                  Text Us
-                </Button>
-              </Link>
-              <Link href="/contact" className="flex items-center gap-2">
-                <Button variant="outline">
-                  <ClipboardIcon className="size-5.5" />
-                  Free Estimate
-                </Button>
-              </Link>
+
+            {/* Right side - Quote Form */}
+            <div className="lg:pl-8">
+              <QuoteForm
+                title="Get a Quote"
+                subtitle="Tell us about your roof issue and we'll get back to you within 24 hours."
+                buttonText="Submit"
+                compact={false}
+                service="Roof Repair"
+              />
             </div>
           </div>
         </div>
       </section>
-
       {/* Expert Services Section */}
       <section className="py-20 px-4 bg-gray-50">
         <div className="max-w-7xl mx-auto">
@@ -88,9 +99,9 @@ export default function RoofRepairPage() {
               Expert Roof Leak Repair Services
             </h2>
             <p className="mt-4 text-base sm:text-lg md:text-xl text-gray-600">
-              Don't let a small leak become a major problem. We provide
-              professional, affordable roof leak repair for homeowners
-              throughout Orange and Woodbridge.
+              We provide professional and affordable roof leak repair for
+              homeowners in Orange, Woodbridge, and throughout Fairfield and New
+              Haven Counties, with fast response and reliable service.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
@@ -169,10 +180,10 @@ export default function RoofRepairPage() {
                 className="object-cover absolute right-0 cursor-pointer z-9"
                 title="Connecticut Flag"
               /> */}
-              <div className="absolute inset-0 bg-[url(/roof-repair-4.jpg)] bg-cover bg-[50%_45%] flex items-end p-6">
-                <span className="text-white font-bold text-base bg-primary px-4 py-2 backdrop-blur-sm">
+              <div className="absolute inset-0 bg-[url(/roof-repair-2.jpg)] bg-contain flex items-end p-6">
+                {/* <span className="text-white font-bold text-base bg-primary px-4 py-2 backdrop-blur-sm">
                   Roof Repair in CT
-                </span>
+                </span> */}
               </div>
             </div>
           </div>

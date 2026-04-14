@@ -1,5 +1,6 @@
 import HomeFooter from "@/components/HomeFooter";
 import HomeNavbar from "@/components/HomeNavbar";
+import QuoteForm from "@/components/QuoteForm";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -29,31 +30,44 @@ export default function Home() {
             priority
             className="object-cover"
           />
-          <div className="absolute inset-0 bg-black/80" />
+          <div className="absolute inset-0 bg-black/45" />
         </div>
-        <div className="relative z-10 flex h-full flex-col items-start justify-center text-white px-4 sm:px-6 md:px-8 gap-12">
-          <div className="text-left space-y-6">
-            <h1 className="text-4xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-left leading-20">
-              YOUR TRUSTED, LOCAL HANDYMAN & HOME IMPROVEMENT EXPERTS
-            </h1>
-            <p className="mt-4 text-base sm:text-lg md:text-xl">
-              Our top-rated pros in Connecticut are ready to tackle all your
-              home projects – big or small – on time & on budget. Guaranteed.
-            </p>
-          </div>
-          <div className="flex md:flex-row flex-col gap-6">
-            <Button className="gap-x-3">
-              <MessageCircle className="size-5.5" />
-              Click to Text Us
-            </Button>
-            <Button className="gap-x-3">
-              <PhoneCall className="size-5.5" />
-              Click to Call Us
-            </Button>
-            <Button className="gap-x-3">
-              <ClipboardIcon className="size-5.5" />
-              Get an Estimate
-            </Button>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8 h-full">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center h-full">
+            {/* Left side - Text content */}
+            <div className="text-left space-y-6 text-white">
+              <h1 className="text-4xl sm:text-3xl md:text-5xl lg:text-6xl font-bold leading-20">
+                YOUR TRUSTED, LOCAL HANDYMAN & HOME IMPROVEMENT EXPERTS
+              </h1>
+              <p className="text-base sm:text-lg md:text-xl">
+                Our top-rated pros in Connecticut are ready to tackle all your
+                home projects – big or small – on time & on budget. Guaranteed.
+              </p>
+              <div className="flex md:flex-row flex-col gap-6">
+                <Button className="gap-x-3">
+                  <MessageCircle className="size-5" />
+                  Click to Text Us
+                </Button>
+                <Button className="gap-x-3">
+                  <PhoneCall className="size-5" />
+                  Click to Call Us
+                </Button>
+                <Button className="gap-x-3">
+                  <ClipboardIcon className="size-5" />
+                  Get an Estimate
+                </Button>
+              </div>
+            </div>
+
+            {/* Right side - Quote Form */}
+            <div>
+              <QuoteForm
+                title="Free Estimate"
+                subtitle="Tell us about your project"
+                buttonText="Get Quote"
+                compact={true}
+              />
+            </div>
           </div>
         </div>
       </section>

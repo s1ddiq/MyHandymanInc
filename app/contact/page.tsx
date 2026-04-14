@@ -116,6 +116,8 @@ export default function ContactPage() {
           type: "success",
           message: "Thank you! We'll get back to you within 24 hours.",
         });
+
+        // Reset form on success
         setFormData({
           name: "",
           email: "",
@@ -123,6 +125,9 @@ export default function ContactPage() {
           service: "",
           message: "",
         });
+
+        // Optional: Reset the select dropdown
+        // You might need to add a ref to reset the select
       } else {
         setSubmitStatus({
           type: "error",

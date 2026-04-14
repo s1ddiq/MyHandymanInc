@@ -1,3 +1,4 @@
+import QuoteForm from "@/components/QuoteForm";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -52,38 +53,57 @@ export default function WhyUsPage() {
           priority
         />
         <div className="absolute inset-0 bg-black/50"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium mb-6 text-white">
-              <Star className="w-4 h-4" />
-              Why Homeowners Choose Us
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+            {/* Left side - Text content */}
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium mb-6 text-white">
+                <Star className="w-4 h-4" />
+                Why Homeowners Choose Us
+              </div>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white">
+                Why Connecticut Trusts My Handyman Inc
+              </h1>
+              <p className="mt-6 text-lg md:text-xl text-white/90 max-w-2xl">
+                Family-owned, 16+ years of experience, and a commitment to doing
+                the job right the first time. Here's why we're different.
+              </p>
+              <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                <Link href="tel:+12034413471">
+                  <Button className="gap-2">
+                    <PhoneCall className="size-5" />
+                    Call (203) 441-3471
+                  </Button>
+                </Link>
+                <Link href="sms:+12034413471">
+                  <Button
+                    variant="outline"
+                    className="gap-2 bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20"
+                  >
+                    <MessageCircle className="size-5" />
+                    Text Us
+                  </Button>
+                </Link>
+                <Link href="/contact">
+                  <Button
+                    variant="outline"
+                    className="gap-2 bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20"
+                  >
+                    <ClipboardIcon className="size-5" />
+                    Free Estimate
+                  </Button>
+                </Link>
+              </div>
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white">
-              Why Connecticut Trusts My Handyman Inc
-            </h1>
-            <p className="mt-6 text-lg md:text-xl text-white/90 max-w-2xl">
-              Family-owned, 16+ years of experience, and a commitment to doing
-              the job right the first time. Here's why we're different.
-            </p>
-            <div className="mt-8 flex flex-col sm:flex-row gap-4">
-              <Link href="tel:+12034413471">
-                <Button className="gap-2">
-                  <PhoneCall className="size-5.5" />
-                  Call (203) 441-3471
-                </Button>
-              </Link>
-              <Link href="sms:+12034413471">
-                <Button variant="outline" className="gap-2">
-                  <MessageCircle className="size-5.5" />
-                  Text Us
-                </Button>
-              </Link>
-              <Link href="/contact">
-                <Button variant="outline" className="gap-2">
-                  <ClipboardIcon className="size-5.5" />
-                  Free Estimate
-                </Button>
-              </Link>
+
+            {/* Right side - Quote Form */}
+            <div className="lg:pl-4">
+              <QuoteForm
+                title="Get a Free Quote"
+                subtitle="Tell us about your project and we'll get back to you within 24 hours."
+                buttonText="Send Request"
+                compact={false}
+              />
             </div>
           </div>
         </div>
