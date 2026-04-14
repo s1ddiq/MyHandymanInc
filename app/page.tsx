@@ -21,7 +21,7 @@ export default function Home() {
   return (
     <main>
       {/* Hero Section */}
-      <section className="relative h-[calc(100vh-150px)]">
+      <section className="relative md:h-[calc(100vh-150px)] h-auto">
         <div className="absolute inset-0 overflow-hidden">
           <Image
             src="/hero_image.jpg"
