@@ -153,10 +153,7 @@ const HomeFooter = () => {
               >
                 Terms of Service
               </Link>
-              <Link
-                href="/sitemap"
-                className="hover:text-primary transition-colors"
-              >
+              <Link href="/" className="hover:text-primary transition-colors">
                 Sitemap
               </Link>
               <Link
