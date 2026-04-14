@@ -33,7 +33,9 @@ export default function CookieBanner() {
         <div className="flex items-center gap-3 text-sm text-gray-600">
           <Cookie className="w-5 h-5 text-blue-500 flex-shrink-0" />
           <span>
-            We use cookies to improve your experience.{" "}
+            We use
+            {/* <b className="italic text-primary">necessary</b> */} necessary
+            cookies to improve your experience.{" "}
             <Link href="/privacy" className="text-blue-600 underline">
               Privacy Policy
             </Link>{" "}
