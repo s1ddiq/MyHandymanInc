@@ -39,9 +39,11 @@ export default function RootLayout({
       lang="en"
       className={cn("h-full", "antialiased", roboto.className, "font-sans")}
     >
-      <HomeNavbar />
-      <body className="min-h-full flex flex-col">{children}</body>
-      <HomeFooter />
+      <body className="min-h-full flex flex-col">
+        <HomeNavbar />
+        {children}
+        <HomeFooter />
+      </body>
     </html>
   );
 }
