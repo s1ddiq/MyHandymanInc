@@ -100,7 +100,7 @@ export default function ServicesPage() {
             {/* Right side - Quote Form */}
             <div className="lg:pl-4">
               <QuoteForm
-                title="Get a Free Quote"
+                title="How can we help"
                 subtitle="Tell us about your project and we'll get back to you within 24 hours."
                 buttonText="Send Request"
                 compact={false}

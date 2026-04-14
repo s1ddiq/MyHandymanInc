@@ -99,9 +99,9 @@ export default function WhyUsPage() {
             {/* Right side - Quote Form */}
             <div className="lg:pl-4">
               <QuoteForm
-                title="Get a Free Quote"
+                title="Get a Quote"
                 subtitle="Tell us about your project and we'll get back to you within 24 hours."
-                buttonText="Send Request"
+                buttonText="Get Quote"
                 compact={false}
               />
             </div>

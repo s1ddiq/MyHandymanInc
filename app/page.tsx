@@ -62,7 +62,7 @@ export default function Home() {
             {/* Right side - Quote Form */}
             <div>
               <QuoteForm
-                title="Free Estimate"
+                title="Get a Quote"
                 subtitle="Tell us about your project"
                 buttonText="Get Quote"
                 compact={true}

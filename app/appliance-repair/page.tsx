@@ -104,7 +104,7 @@ export default function ApplianceRepairPage() {
               <QuoteForm
                 title="Get a Quote"
                 subtitle="Tell us about your appliance issue and we'll get back to you within 24 hours."
-                buttonText="Submit"
+                buttonText="Get Quote"
                 compact={false}
                 service="Appliance Repair"
               />

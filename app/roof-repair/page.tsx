@@ -83,7 +83,7 @@ export default function RoofRepairPage() {
               <QuoteForm
                 title="Get a Quote"
                 subtitle="Tell us about your roof issue and we'll get back to you within 24 hours."
-                buttonText="Submit"
+                buttonText="Get Quote"
                 compact={false}
                 service="Roof Repair"
               />
