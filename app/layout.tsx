@@ -4,6 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import HomeNavbar from "@/components/HomeNavbar";
 import HomeFooter from "@/components/HomeFooter";
+import CookieBanner from "@/components/CookieBanner";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -42,6 +43,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <HomeNavbar />
         {children}
+        <CookieBanner />
         <HomeFooter />
       </body>
     </html>

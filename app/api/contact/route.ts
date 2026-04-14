@@ -218,7 +218,7 @@ function generateEmailTemplate(formData: {
       <p>My Handyman Inc | Serving Orange & Woodbridge, CT Since 2012</p>
       <p style="margin-top: 6px;">
         <a href="tel:+12034413471">(203) 441-3471</a> | 
-        <a href="mailto:info@myhandymaninc.com">info@myhandymaninc.com</a>
+        <a href="mailto:myhandymaninc1@gmail.com">myhandymaninc1@gmail.com</a>
       </p>
     </div>
   </div>
@@ -384,7 +384,7 @@ function generateAutoReplyTemplate(name: string) {
       <p>My Handyman Inc | Orange & Woodbridge, CT</p>
       <p style="margin-top: 6px;">
         <a href="tel:+12034413471">(203) 441-3471</a> | 
-        <a href="mailto:info@myhandymaninc.com">info@myhandymaninc.com</a>
+        <a href="mailto:myhandymaninc1@gmail.com">myhandymaninc1@gmail.com</a>
       </p>
     </div>
   </div>

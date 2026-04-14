@@ -15,9 +15,7 @@ export default function PrivacyPage() {
       <section className="bg-gray-900 text-white py-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold">Privacy Policy</h1>
-          <p className="mt-4 text-gray-300">
-            Last Updated: {new Date().toLocaleDateString()}
-          </p>
+          <p className="mt-4 text-gray-300">Effective Date: January 1, 2024</p>
         </div>
       </section>
 
@@ -26,10 +24,10 @@ export default function PrivacyPage() {
         <div className="max-w-4xl mx-auto">
           <div className="prose prose-lg max-w-none">
             <p className="text-gray-600 mb-6">
-              At My Handyman Inc, we respect your privacy and are committed to
-              protecting your personal information. This Privacy Policy explains
-              how we collect, use, and safeguard your data when you visit our
-              website or use our services.
+              MyHandymanInc ("we," "our," or "us") respects your privacy and is
+              committed to protecting your personal information. This Privacy
+              Policy explains how we collect, use, and safeguard your data when
+              you visit our website or use our services.
             </p>
 
             <h2 className="text-2xl font-bold mt-8 mb-4">
@@ -40,17 +38,17 @@ export default function PrivacyPage() {
             </p>
             <ul className="list-disc pl-6 text-gray-600 space-y-2 mb-6">
               <li>
-                <strong>Personal Information:</strong> Name, email address,
-                phone number, and home address when you contact us or request an
-                estimate.
+                <strong>Personal Information:</strong> Name, phone number, email
+                address, and service address
               </li>
               <li>
                 <strong>Service Information:</strong> Details about your home,
-                repair needs, and project requirements.
+                repair needs, and project requirements
               </li>
               <li>
-                <strong>Website Usage Data:</strong> IP address, browser type,
-                pages visited, and time spent on our site (via cookies).
+                <strong>Automatically Collected Information:</strong> IP
+                address, browser type, device information, and pages visited on
+                our website
               </li>
             </ul>
 
@@ -59,100 +57,149 @@ export default function PrivacyPage() {
             </h2>
             <p className="text-gray-600 mb-4">We use your information to:</p>
             <ul className="list-disc pl-6 text-gray-600 space-y-2 mb-6">
-              <li>Provide and schedule our handyman and repair services</li>
-              <li>Respond to your inquiries and provide free estimates</li>
-              <li>
-                Communicate about appointments, follow-ups, and promotions
-              </li>
-              <li>Improve our website and customer service</li>
-              <li>Comply with legal obligations</li>
+              <li>Schedule and manage service appointments</li>
+              <li>Communicate regarding your repair or service request</li>
+              <li>Send estimates, invoices, and updates</li>
+              <li>Provide customer support</li>
+              <li>Improve our website and services</li>
             </ul>
 
             <h2 className="text-2xl font-bold mt-8 mb-4">
-              3. Text Messaging & Communications
+              3. SMS / Text Message Communications (10DLC Compliant)
             </h2>
             <p className="text-gray-600 mb-4">
-              When you provide your phone number, you consent to receive text
-              messages from My Handyman Inc regarding:
+              If you provide your phone number, you may receive SMS messages
+              from MyHandymanInc related to:
             </p>
-            <ul className="list-disc pl-6 text-gray-600 space-y-2 mb-6">
+            <ul className="list-disc pl-6 text-gray-600 space-y-2 mb-4">
               <li>Appointment confirmations and reminders</li>
-              <li>Service updates and follow-ups</li>
-              <li>Responses to your inquiries</li>
+              <li>Service updates and technician arrival notifications</li>
+              <li>Estimates, invoices, and customer support</li>
             </ul>
-            <p className="text-gray-600 mb-4">
-              Message and data rates may apply. You can opt out at any time by
-              replying STOP to any message.
-            </p>
+
+            <div className="bg-gray-50 p-4 rounded-lg mb-4 border-l-4 border-blue-500">
+              <p className="text-gray-700 mb-2">
+                <strong>🔹 Consent:</strong> By providing your phone number, you
+                consent to receive SMS messages from us.{" "}
+                <em>Consent is not a condition of purchase.</em>
+              </p>
+              <p className="text-gray-700 mb-2">
+                <strong>🔹 Message Frequency:</strong> Message frequency may
+                vary depending on your interaction with our services.
+              </p>
+              <p className="text-gray-700 mb-2">
+                <strong>🔹 Message & Data Rates:</strong> Message and data rates
+                may apply based on your mobile carrier.
+              </p>
+              <p className="text-gray-700 mb-2">
+                <strong>🔹 Opt-Out Instructions:</strong> You can opt out of SMS
+                communications at any time by replying STOP to any message.
+              </p>
+              <p className="text-gray-700">
+                <strong>🔹 Help Instructions:</strong> For assistance, reply
+                HELP or contact us at (203) 441-3471.
+              </p>
+            </div>
 
             <h2 className="text-2xl font-bold mt-8 mb-4">
               4. Information Sharing
             </h2>
             <p className="text-gray-600 mb-4">
-              We do not sell, trade, or rent your personal information to third
-              parties. We may share information only:
+              We do not sell, rent, or share your personal information with
+              third parties for marketing purposes.
+            </p>
+            <p className="text-gray-600 mb-4">
+              We may share information only when necessary to:
             </p>
             <ul className="list-disc pl-6 text-gray-600 space-y-2 mb-6">
-              <li>With your consent</li>
-              <li>To comply with legal requirements</li>
-              <li>With service providers who assist our business operations</li>
-              <li>To protect our rights, property, or safety</li>
+              <li>Provide requested services</li>
+              <li>Comply with legal obligations</li>
+              <li>Protect our rights and safety</li>
+              <li>
+                With service providers who assist our business operations (under
+                confidentiality agreements)
+              </li>
             </ul>
 
             <h2 className="text-2xl font-bold mt-8 mb-4">5. Data Security</h2>
             <p className="text-gray-600 mb-6">
-              We implement reasonable security measures to protect your personal
-              information from unauthorized access, alteration, or disclosure.
-              However, no internet transmission is 100% secure.
+              We take reasonable measures to protect your information from
+              unauthorized access, disclosure, or misuse. However, no method of
+              transmission over the internet is 100% secure.
             </p>
 
             <h2 className="text-2xl font-bold mt-8 mb-4">
               6. Cookies & Tracking
             </h2>
             <p className="text-gray-600 mb-6">
-              Our website uses cookies to enhance your browsing experience. You
-              can disable cookies in your browser settings, but this may affect
-              website functionality.
+              Our website may use cookies or similar technologies to improve
+              user experience and analyze website traffic. You can adjust your
+              browser settings to refuse cookies if you prefer.
             </p>
 
             <h2 className="text-2xl font-bold mt-8 mb-4">
-              7. Children's Privacy
+              7. Third-Party Services
             </h2>
             <p className="text-gray-600 mb-6">
-              Our services are not directed to children under 13. We do not
-              knowingly collect personal information from children.
+              We may use third-party tools (such as payment processors or
+              scheduling platforms) to operate our business. These providers may
+              have access to necessary information but are required to protect
+              it.
             </p>
 
             <h2 className="text-2xl font-bold mt-8 mb-4">8. Your Rights</h2>
-            <p className="text-gray-600 mb-4">
-              Depending on your location, you may have the right to:
-            </p>
+            <p className="text-gray-600 mb-4">You may request to:</p>
             <ul className="list-disc pl-6 text-gray-600 space-y-2 mb-6">
-              <li>Access the personal information we have about you</li>
-              <li>Request correction of inaccurate information</li>
-              <li>Request deletion of your information</li>
+              <li>Access your personal information</li>
+              <li>Correct inaccurate information</li>
+              <li>Request deletion of your data (where applicable)</li>
               <li>Opt out of marketing communications</li>
             </ul>
+            <p className="text-gray-600 mb-6">
+              To make a request, contact us using the information below.
+            </p>
+
+            <h2 className="text-2xl font-bold mt-8 mb-4">9. Data Retention</h2>
+            <p className="text-gray-600 mb-6">
+              We retain your personal information for as long as necessary to
+              provide our services, comply with legal obligations, resolve
+              disputes, and enforce our agreements. Typically, we retain
+              customer data for 7 years as required by tax and insurance
+              regulations.
+            </p>
 
             <h2 className="text-2xl font-bold mt-8 mb-4">
-              9. Changes to This Policy
+              10. Children's Privacy
             </h2>
             <p className="text-gray-600 mb-6">
-              We may update this Privacy Policy from time to time. The updated
-              version will be posted on this page with a revised "Last Updated"
-              date.
+              Our services are not directed to individuals under the age of 13,
+              and we do not knowingly collect information from children.
             </p>
 
-            <h2 className="text-2xl font-bold mt-8 mb-4">10. Contact Us</h2>
-            <p className="text-gray-600 mb-2">
-              If you have questions about this Privacy Policy, please contact
-              us:
+            <h2 className="text-2xl font-bold mt-8 mb-4">
+              11. Changes to This Policy
+            </h2>
+            <p className="text-gray-600 mb-6">
+              We may update this Privacy Policy at any time. Updates will be
+              posted on this page with a revised effective date.
             </p>
-            <ul className="list-none pl-0 text-gray-600 space-y-2">
-              <li>📞 Phone: (203) 441-3471</li>
-              <li>✉️ Email: info@myhandymaninc.com</li>
-              <li>📍 Serving: Orange & Woodbridge, CT</li>
-            </ul>
+
+            <h2 className="text-2xl font-bold mt-8 mb-4">
+              12. Contact Information
+            </h2>
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <p className="text-gray-600 mb-2">
+                <strong>MyHandymanInc</strong>
+              </p>
+              <p className="text-gray-600 mb-2">📞 Phone: (203) 441-3471</p>
+              <p className="text-gray-600 mb-2">
+                ✉️ Email: myhandymaninc1@gmail.com
+              </p>
+              <p className="text-gray-600">🌐 Website: myhandymaninc.com</p>
+              <p className="text-gray-600 mt-2">
+                📍 Serving: Orange, Woodbridge, and surrounding CT areas
+              </p>
+            </div>
           </div>
 
           {/* Back to Home */}

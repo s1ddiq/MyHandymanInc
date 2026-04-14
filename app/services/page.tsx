@@ -501,10 +501,10 @@ export default function ServicesPage() {
                 (203) 441-3471
               </Button>
             </Link>
-            <Link href="mailto:info@myhandymaninc.com">
+            <Link href="mailto:myhandymaninc1@gmail.com">
               <Button variant="outline" className="text-primary">
                 <Mail className="size-5.5" />
-                info@myhandymaninc.com
+                myhandymaninc1@gmail.com
               </Button>
             </Link>
           </div>

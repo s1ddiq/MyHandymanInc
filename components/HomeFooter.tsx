@@ -86,10 +86,10 @@ const HomeFooter = () => {
               <li className="flex items-start gap-3">
                 <Mail className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                 <a
-                  href="mailto:info@myhandymaninc.com"
+                  href="mailto:myhandymaninc1@gmail.com"
                   className="hover:text-primary transition-colors"
                 >
-                  info@myhandymaninc.com
+                  myhandymaninc1@gmail.com
                 </a>
               </li>
               <li className="flex items-start gap-3">

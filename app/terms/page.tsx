@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata = {
   title: "Terms of Service | My Handyman Inc - Orange & Woodbridge CT",
   description:
-    "Read our terms of service for handyman and repair services in Orange and Woodbridge, CT.",
+    "Read our terms of service for handyman, appliance repair, and roofing services in Connecticut and Westchester County, NY.",
 };
 
 export default function TermsPage() {
@@ -14,9 +14,7 @@ export default function TermsPage() {
       <section className="bg-gray-900 text-white py-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold">Terms of Service</h1>
-          <p className="mt-4 text-gray-300">
-            Last Updated: {new Date().toLocaleDateString()}
-          </p>
+          <p className="mt-4 text-gray-300">Effective Date: January 1, 2024</p>
         </div>
       </section>
 
@@ -25,130 +23,140 @@ export default function TermsPage() {
         <div className="max-w-4xl mx-auto">
           <div className="prose prose-lg max-w-none">
             <p className="text-gray-600 mb-6">
-              By accessing our website or using our handyman and repair
-              services, you agree to these Terms of Service. Please read them
-              carefully.
+              Welcome to MyHandymanInc. By accessing our website or using our
+              services, you agree to the following Terms of Service.
             </p>
 
-            <h2 className="text-2xl font-bold mt-8 mb-4">1. Our Services</h2>
+            <h2 className="text-2xl font-bold mt-8 mb-4">
+              1. Services Provided
+            </h2>
+            <p className="text-gray-600 mb-4">MyHandymanInc provides:</p>
+            <ul className="list-disc pl-6 text-gray-600 space-y-2 mb-4">
+              <li>Appliance repair, installation, and diagnostics</li>
+              <li>Roof repair, leak detection, and replacement services</li>
+              <li>General handyman services</li>
+            </ul>
             <p className="text-gray-600 mb-6">
-              My Handyman Inc provides professional handyman, home improvement,
-              appliance repair, and roof leak repair services in Orange,
-              Woodbridge, and surrounding areas of Connecticut. All services are
-              subject to availability and technician expertise.
+              We service customers throughout Connecticut and Westchester
+              County, NY. All services are subject to availability and
+              scheduling.
             </p>
 
             <h2 className="text-2xl font-bold mt-8 mb-4">
-              2. Estimates & Pricing
+              2. Diagnostic Fee & Estimates
             </h2>
-            <ul className="list-disc pl-6 text-gray-600 space-y-2 mb-6">
-              <li>
-                Free estimates are provided at our discretion and are
-                non-binding.
-              </li>
-              <li>
-                Final pricing may vary based on actual time, materials, and
-                unforeseen issues discovered during work.
-              </li>
-              <li>
-                We provide upfront pricing before starting any work whenever
-                possible.
-              </li>
-              <li>Emergency and same-day services may have additional fees.</li>
+            <p className="text-gray-600 mb-4">
+              A non-refundable diagnostic fee is required for appliance repair
+              visits. The diagnostic fee covers:
+            </p>
+            <ul className="list-disc pl-6 text-gray-600 space-y-2 mb-4">
+              <li>Full evaluation of the issue</li>
+              <li>Identification of required repairs</li>
             </ul>
 
-            <h2 className="text-2xl font-bold mt-8 mb-4">
-              3. Appointments & Cancellations
-            </h2>
-            <ul className="list-disc pl-6 text-gray-600 space-y-2 mb-6">
-              <li>
-                We strive to arrive at scheduled appointment times but cannot
-                guarantee exact arrival times.
-              </li>
-              <li>Please provide at least 2 hours notice for cancellations.</li>
-              <li>
-                We reserve the right to cancel or reschedule appointments due to
-                emergencies, weather, or other circumstances.
-              </li>
-            </ul>
+            <div className="bg-blue-50 p-4 rounded-lg mb-4 border-l-4 border-blue-500">
+              <p className="text-gray-700">
+                <strong>
+                  👉 If the issue is minor and can be resolved within
+                  approximately one (1) hour without parts
+                </strong>
+                , it may be completed at no additional labor charge.
+              </p>
+            </div>
 
-            <h2 className="text-2xl font-bold mt-8 mb-4">4. Payment Terms</h2>
+            <p className="text-gray-600 mb-4">Any repair requiring:</p>
             <ul className="list-disc pl-6 text-gray-600 space-y-2 mb-6">
-              <li>
-                Payment is due upon completion of services unless otherwise
-                agreed.
-              </li>
-              <li>We accept cash, check, and major credit cards.</li>
-              <li>Returned checks are subject to a $35 processing fee.</li>
-              <li>
-                Outstanding invoices beyond 30 days may incur interest charges.
-              </li>
+              <li>Parts</li>
+              <li>Extended labor</li>
+              <li>Return visits</li>
             </ul>
-
-            <h2 className="text-2xl font-bold mt-8 mb-4">
-              5. Warranty & Guarantee
-            </h2>
-            <ul className="list-disc pl-6 text-gray-600 space-y-2 mb-6">
-              <li>
-                We offer a 1-year labor guarantee on most handyman services.
-              </li>
-              <li>
-                Manufacturer warranties on parts or appliances apply separately.
-              </li>
-              <li>
-                The warranty does not cover damage caused by misuse, neglect, or
-                normal wear and tear.
-              </li>
-              <li>
-                Warranty claims must be reported within the guarantee period.
-              </li>
-            </ul>
-
-            <h2 className="text-2xl font-bold mt-8 mb-4">
-              6. Customer Responsibilities
-            </h2>
-            <p className="text-gray-600 mb-4">As a customer, you agree to:</p>
-            <ul className="list-disc pl-6 text-gray-600 space-y-2 mb-6">
-              <li>Provide safe and clear access to work areas</li>
-              <li>
-                Disclose any known hazards or issues (e.g., mold, asbestos)
-              </li>
-              <li>Obtain necessary permits where required</li>
-              <li>Secure pets during service appointments</li>
-              <li>
-                Be present or provide access to the property for scheduled work
-              </li>
-            </ul>
-
-            <h2 className="text-2xl font-bold mt-8 mb-4">
-              7. Limitation of Liability
-            </h2>
             <p className="text-gray-600 mb-6">
-              To the maximum extent permitted by law, My Handyman Inc shall not
-              be liable for indirect, incidental, or consequential damages
-              arising from our services. Our total liability shall not exceed
-              the amount paid for the specific service giving rise to the claim.
+              Will be quoted separately and must be approved before work
+              proceeds.
             </p>
 
             <h2 className="text-2xl font-bold mt-8 mb-4">
-              8. Property Access & Safety
+              3. Roofing Services Disclaimer
             </h2>
-            <p className="text-gray-600 mb-6">
-              By scheduling services, you grant our technicians permission to
-              enter your property at the agreed time. You are responsible for
-              securing valuables and ensuring a safe work environment.
+            <p className="text-gray-600 mb-4">
+              Roof inspections and repairs are based on visible conditions at
+              the time of service.
             </p>
+            <ul className="list-disc pl-6 text-gray-600 space-y-2 mb-6">
+              <li>Hidden damage may not be immediately detectable</li>
+              <li>Additional repairs may be required once work begins</li>
+              <li>
+                Temporary repairs (e.g., leak patches) are not guaranteed as
+                permanent solutions
+              </li>
+            </ul>
 
             <h2 className="text-2xl font-bold mt-8 mb-4">
-              9. Intellectual Property
+              4. Payments & Appointments
             </h2>
-            <p className="text-gray-600 mb-6">
-              All content on this website (text, images, logos) is the property
-              of My Handyman Inc and may not be used without permission.
-            </p>
+            <ul className="list-disc pl-6 text-gray-600 space-y-2 mb-6">
+              <li>Payment may be required in advance to secure appointments</li>
+              <li>
+                Accepted payment methods will be provided at time of booking
+              </li>
+              <li>
+                Appointments are typically scheduled within a time window (e.g.,
+                3–5 PM)
+              </li>
+              <li>
+                Failure to provide access to the property may result in
+                cancellation or additional fees
+              </li>
+            </ul>
 
             <h2 className="text-2xl font-bold mt-8 mb-4">
-              10. Modifications to Terms
+              5. Cancellations & Rescheduling
+            </h2>
+            <ul className="list-disc pl-6 text-gray-600 space-y-2 mb-6">
+              <li>
+                Customers must provide reasonable notice for cancellations or
+                rescheduling
+              </li>
+              <li>Same-day cancellations may be subject to a service charge</li>
+            </ul>
+
+            <h2 className="text-2xl font-bold mt-8 mb-4">
+              6. Limitation of Liability
+            </h2>
+            <p className="text-gray-600 mb-4">
+              MyHandymanInc is not liable for:
+            </p>
+            <ul className="list-disc pl-6 text-gray-600 space-y-2 mb-4">
+              <li>Pre-existing conditions or damages</li>
+              <li>Manufacturer defects</li>
+              <li>Delays caused by parts availability or external factors</li>
+            </ul>
+            <p className="text-gray-600 mb-6">
+              To the fullest extent permitted by law, our liability is limited
+              to the amount paid for services.
+            </p>
+
+            <h2 className="text-2xl font-bold mt-8 mb-4">7. Warranties</h2>
+            <ul className="list-disc pl-6 text-gray-600 space-y-2 mb-6">
+              <li>
+                Labor warranties (if provided) will be disclosed at time of
+                service
+              </li>
+              <li>Parts warranties are subject to manufacturer terms</li>
+            </ul>
+
+            <h2 className="text-2xl font-bold mt-8 mb-4">8. Website Use</h2>
+            <p className="text-gray-600 mb-4">
+              By using this website, you agree not to:
+            </p>
+            <ul className="list-disc pl-6 text-gray-600 space-y-2 mb-6">
+              <li>Misuse contact forms</li>
+              <li>Submit false or misleading information</li>
+              <li>Attempt unauthorized access to systems</li>
+            </ul>
+
+            <h2 className="text-2xl font-bold mt-8 mb-4">
+              9. Modifications to Terms
             </h2>
             <p className="text-gray-600 mb-6">
               We reserve the right to update these Terms of Service at any time.
@@ -156,22 +164,29 @@ export default function TermsPage() {
               terms.
             </p>
 
-            <h2 className="text-2xl font-bold mt-8 mb-4">11. Governing Law</h2>
+            <h2 className="text-2xl font-bold mt-8 mb-4">10. Governing Law</h2>
             <p className="text-gray-600 mb-6">
               These terms are governed by the laws of the State of Connecticut.
               Any disputes shall be resolved in the courts of New Haven County,
               Connecticut.
             </p>
 
-            <h2 className="text-2xl font-bold mt-8 mb-4">12. Contact Us</h2>
+            <h2 className="text-2xl font-bold mt-8 mb-4">11. Contact Us</h2>
             <p className="text-gray-600 mb-2">
               Questions about these Terms of Service? Contact us:
             </p>
-            <ul className="list-none pl-0 text-gray-600 space-y-2">
-              <li>📞 Phone: (203) 441-3471</li>
-              <li>✉️ Email: info@myhandymaninc.com</li>
-              <li>📍 Serving: Orange & Woodbridge, CT</li>
-            </ul>
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <p className="text-gray-600 mb-2">📞 Phone: (203) 441-3471</p>
+              <p className="text-gray-600 mb-2">
+                ✉️ Email: myhandymaninc1@gmail.com ✉️ Email:
+              </p>
+              <p className="text-gray-600">
+                🌐 Website: myhandymaninc.com 🔨 Developer: snashct@gmail.com
+              </p>
+              <p className="text-gray-600 mt-2">
+                📍 Serving: Connecticut & Westchester County, NY
+              </p>
+            </div>
           </div>
 
           {/* Back to Home */}

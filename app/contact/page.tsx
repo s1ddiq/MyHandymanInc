@@ -428,10 +428,10 @@ export default function ContactPage() {
                         Send us your project details
                       </CardDescription>
                       <Link
-                        href="mailto:info@myhandymaninc.com"
+                        href="mailto:myhandymaninc1@gmail.com"
                         className="text-primary font-semibold text-xl mt-2 inline-block hover:underline"
                       >
-                        info@myhandymaninc.com
+                        myhandymaninc1@gmail.com
                       </Link>
                       <p className="text-sm text-gray-500 mt-2">
                         We typically respond within 24 hours
