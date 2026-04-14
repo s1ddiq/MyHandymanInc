@@ -30,7 +30,7 @@ export default function Home() {
             priority
             className="object-cover"
           />
-          <div className="absolute inset-0 bg-black/45" />
+          <div className="absolute inset-0 bg-black/70" />
         </div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8 h-full">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center h-full">
