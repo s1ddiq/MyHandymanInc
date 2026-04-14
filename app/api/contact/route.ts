@@ -10,7 +10,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
   //   SET TO 3 (may reduce bnow set to 5!)
-  limiter: Ratelimit.slidingWindow(40, "24h"), // 2026 4/14/ @ 4:58pm
+  limiter: Ratelimit.slidingWindow(5, "24h"), // 2026 4/14/ @ 4:58pm
 });
 
 // Email template function - Handcrafted, warm, human-centered design
