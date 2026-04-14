@@ -18,9 +18,9 @@ const HomeNavbar = () => {
   };
 
   return (
-    <header className="bg-background">
+    <header className="bg-background md:static sticky top-0 z-90">
       {/* Top bar with phone number - this will scroll away */}
-      <div className="bg-primary/80 text-primary-foreground p-2 text-sm sm:text-base md:text-lg font-bold tracking-wide flex-center">
+      <div className="bg-primary/80 text-primary-foreground p-2 text-sm sm:text-base md:text-lg font-bold tracking-wide  md:flex hidden justify-center items-center">
         <Link href="tel:2032086095" className="hover:underline">
           <PhoneCall className="inline mr-3 size-5.5" />
           CALL US NOW: (203) 208-6095
@@ -34,15 +34,16 @@ const HomeNavbar = () => {
           <div className="shrink-0">
             <Link
               href="/"
-              className="text-base sm:text-lg md:text-xl font-bold text-primary-foreground hover:opacity-80 transition-opacity"
+              className="text-base sm:text-lg md:text-xl font-bold text-primary-foreground hover:opacity-80 transition-opacity flex gap-3 items-center border border-white p-3"
               onClick={closeMobileMenu}
             >
               <Image
-                src="/logo.png"
+                src="/favicon.ico"
                 alt="Company Logo"
-                width={150}
-                height={150}
+                width={32}
+                height={32}
               />
+              <p className=" font-bold">MyHandymanInc</p>
             </Link>
           </div>
 

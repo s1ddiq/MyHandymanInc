@@ -21,7 +21,7 @@ export default function Home() {
   return (
     <main>
       {/* Hero Section */}
-      <section className="relative h-[calc(100vh-140px)]">
+      <section className="relative h-[calc(100vh-150px)]">
         <div className="absolute inset-0 overflow-hidden">
           <Image
             src="/hero_image.jpg"
@@ -36,14 +36,14 @@ export default function Home() {
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center h-full">
             {/* Left side - Text content */}
             <div className="text-left space-y-6 text-white">
-              <h1 className="text-4xl sm:text-3xl md:text-5xl lg:text-6xl font-bold leading-20">
+              <h1 className="text-4xl sm:text-3xl md:text-5xl lg:text-6xl font-bold md:leading-20  md:pt-0 pt-12">
                 YOUR TRUSTED, LOCAL HANDYMAN & HOME IMPROVEMENT EXPERTS
               </h1>
               <p className="text-base sm:text-lg md:text-xl">
                 Our top-rated pros in Connecticut are ready to tackle all your
                 home projects – big or small – on time & on budget. Guaranteed.
               </p>
-              <div className="flex md:flex-row flex-col gap-6">
+              <div className="flex md:flex-row hidden gap-6">
                 <Button className="gap-x-3">
                   <MessageCircle className="size-5" />
                   Click to Text Us
