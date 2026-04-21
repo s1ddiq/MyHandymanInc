@@ -159,14 +159,9 @@ const HomeFooter = () => {
               <Link
                 href="https://github.com/s1ddiq"
                 className="hover:text-primary transition-colors underline-offset-1"
+                title="Made with 💖 in Stamford, Conn."
               >
-                Developed by{" "}
-                <Link
-                  href="https://s1ddiqs-room.vercel.app/"
-                  className="text-primary"
-                >
-                  s1ddiq
-                </Link>
+                Made by Siddiq
               </Link>
             </div>
           </div>

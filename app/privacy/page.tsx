@@ -67,6 +67,30 @@ export default function PrivacyPage() {
             <h2 className="text-2xl font-bold mt-8 mb-4">
               3. SMS / Text Message Communications (10DLC Compliant)
             </h2>
+
+            {/* REQUIRED SMS CONSENT LANGUAGE - DO NOT MODIFY */}
+            <div className="bg-gray-50 p-4 rounded-lg mb-4 border-l-4 border-red-500">
+              <p className="text-gray-800 mb-2 font-medium">
+                <strong>SMS Communications</strong>
+              </p>
+              <p className="text-gray-700 mb-2">
+                By providing your phone number, you consent to receive SMS
+                messages from MyHandymanInc.com related to appliance repair
+                services, including appointment confirmations, scheduling
+                updates, technician arrival notifications, and service
+                follow-ups. Message frequency may vary. Message and data rates
+                may apply. Reply STOP to opt out of SMS messages or HELP for
+                assistance.
+              </p>
+              <p className="text-gray-700">
+                No mobile information will be shared with third parties or
+                affiliates for marketing or promotional purposes. All the above
+                categories exclude text messaging originator opt-in data and
+                consent; this information will not be shared with any third
+                parties.
+              </p>
+            </div>
+
             <p className="text-gray-600 mb-4">
               If you provide your phone number, you may receive SMS messages
               from MyHandymanInc related to:

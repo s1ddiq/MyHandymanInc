@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { CheckCircle2, Send, X } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
 
 interface FormData {
   name: string;
@@ -281,9 +282,15 @@ export default function QuoteForm({
             {isSubmitting ? "Sending..." : buttonText}
           </Button>
 
-          {/* <p className="text-xs text-gray-400 text-center">
-            Free estimate • No obligation
-          </p> */}
+          <p className="text-xs text-gray-400 text-center">
+            By submitting, you agree to the{" "}
+            <Link href="terms" className="underline hover:text-primary">
+              Terms of Service
+            </Link>{" "}
+            {/* <Link href="/privacy" className="underline hover:text-primary">
+              Privacy Policy
+            </Link> */}
+          </p>
         </form>
       </div>
     </div>
