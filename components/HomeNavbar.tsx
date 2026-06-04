@@ -5,8 +5,14 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { Button } from "./ui/button";
 import Image from "next/image";
+import { nav } from "@/lib/config/navigations";
+import { Show, useUser } from "@clerk/nextjs";
 
 const HomeNavbar = () => {
+  const { user } = useUser();
+  const canAccess =
+    user?.publicMetadata?.role === "admin" ||
+    user?.publicMetadata?.role === "sales_rep";
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => {
@@ -34,7 +40,7 @@ const HomeNavbar = () => {
           <div className="shrink-0">
             <Link
               href="/"
-              className="text-base sm:text-lg md:text-xl font-bold text-primary-foreground hover:opacity-80 transition-opacity flex gap-3 items-center border border-white p-3"
+              className="text-base sm:text-lg md:text-xl font-bold text-primary-foreground hover:opacity-80 transition-opacity flex gap-3 items-center bofrder border-wfhite p-3"
               onClick={closeMobileMenu}
             >
               <Image
@@ -89,7 +95,17 @@ const HomeNavbar = () => {
 
           {/* CTAs - Right */}
           <div className="md:flex gap-2 sm:gap-3 shrink-0 hidden">
-            <Button variant="outline">Free Estimate</Button>
+            <Show when="signed-out">
+              <Button variant="outline" onClick={() => nav.goToSignIn()}>
+                Sign In
+              </Button>
+            </Show>
+
+            <Show when="signed-in">
+              {canAccess ? (
+                <Button onClick={() => nav.goToDashboard()}>Dashboard</Button>
+              ) : null}
+            </Show>
           </div>
 
           {/* Mobile menu button */}
@@ -168,9 +184,12 @@ const HomeNavbar = () => {
                 <Button
                   variant="outline"
                   className="w-full text-black"
-                  onClick={closeMobileMenu}
+                  onClick={() => {
+                    closeMobileMenu();
+                    nav.goToSignIn();
+                  }}
                 >
-                  Free Estimate
+                  Sign In
                 </Button>
               </li>
             </ul>
