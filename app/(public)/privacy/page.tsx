@@ -103,26 +103,10 @@ export default function PrivacyPage() {
 
             <div className="bg-gray-50 p-4 rounded-lg mb-4 border-l-4 border-blue-500">
               <p className="text-gray-700 mb-2">
-                <strong>🔹 Consent:</strong> By providing your phone number, you
-                consent to receive SMS messages from us.{" "}
-                <em>Consent is not a condition of purchase.</em>
+               
+www.myhandymaninc.com does not share, sell, or rent your mobile phone number or any personal information collected through SMS messaging with third parties for their marketing purposes. Your mobile number will only be used to send you the SMS messages you have opted in to receive.
               </p>
-              <p className="text-gray-700 mb-2">
-                <strong>🔹 Message Frequency:</strong> Message frequency may
-                vary depending on your interaction with our services.
-              </p>
-              <p className="text-gray-700 mb-2">
-                <strong>🔹 Message & Data Rates:</strong> Message and data rates
-                may apply based on your mobile carrier.
-              </p>
-              <p className="text-gray-700 mb-2">
-                <strong>🔹 Opt-Out Instructions:</strong> You can opt out of SMS
-                communications at any time by replying STOP to any message.
-              </p>
-              <p className="text-gray-700">
-                <strong>🔹 Help Instructions:</strong> For assistance, reply
-                HELP or contact us at (203) 441-3471.
-              </p>
+
             </div>
 
             <h2 className="text-2xl font-bold mt-8 mb-4">
