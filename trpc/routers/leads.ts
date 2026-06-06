@@ -1,20 +1,24 @@
 import { z } from "zod";
-import { createTRPCRouter, adminProcedure, staffProcedure } from "../init";
+import {
+  createTRPCRouter,
+  adminProcedure,
+  staffProcedure,
+  salesRepProcedure,
+} from "../init";
 import { createLeadSchema } from "@/lib/validators/lead";
 import { db } from "@/db";
 import { leads } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, ne } from "drizzle-orm";
+import { getCurrentRole } from "@/lib/utils/roles";
 
 export const leadsRouter = createTRPCRouter({
   create: adminProcedure.input(createLeadSchema).mutation(async ({ input }) => {
     try {
       await db.insert(leads).values(input);
-      // If we get here, it succeeded
       return {
         success: true,
       };
     } catch (error) {
-      // Handle the error here
       console.error("Insert failed:", error);
       return {
         success: false,
@@ -22,7 +26,7 @@ export const leadsRouter = createTRPCRouter({
     }
   }),
 
-  update: adminProcedure
+  update: staffProcedure
     .input(
       z.object({
         id: z.number(),
@@ -37,6 +41,37 @@ export const leadsRouter = createTRPCRouter({
         };
       } catch (error) {
         console.error("Update failed:", error);
+        return {
+          success: false,
+        };
+      }
+    }),
+
+  // New submit procedure for sales reps
+  submit: salesRepProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        notes: z.string().optional(),
+        appointment: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      try {
+        await db
+          .update(leads)
+          .set({
+            notes: input.notes,
+            appointment: input.appointment,
+            status: "Submitted",
+          })
+          .where(eq(leads.id, input.id));
+
+        return {
+          success: true,
+        };
+      } catch (error) {
+        console.error("Submit failed:", error);
         return {
           success: false,
         };
@@ -60,7 +95,18 @@ export const leadsRouter = createTRPCRouter({
     }),
 
   getPublic: staffProcedure.query(async () => {
+    const role = await getCurrentRole();
+
     try {
+      if (role === "sales_rep") {
+        // Show leads that are NOT "Submitted"
+        const leadsData = await db
+          .select()
+          .from(leads)
+          .where(ne(leads.status, "Submitted"));
+        return leadsData;
+      }
+      // For staff/admin, show all leads
       const leadsData = await db.select().from(leads);
       return leadsData;
     } catch (error) {

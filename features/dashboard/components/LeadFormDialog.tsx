@@ -234,32 +234,6 @@ export function LeadFormDialog({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="contact_status">Contact Status</Label>
-                <Select
-                  onValueChange={(value) =>
-                    form.setValue("contact_status", value)
-                  }
-                  defaultValue={form.watch("contact_status")}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select contact status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Selected Show Number">
-                      Selected Show Number
-                    </SelectItem>
-                    <SelectItem value="Called">Called</SelectItem>
-                    <SelectItem value="Texted">Texted</SelectItem>
-                    <SelectItem value="Emailed">Emailed</SelectItem>
-                    <SelectItem value="Follow Up">Follow Up</SelectItem>
-                    <SelectItem value="Not Interested">
-                      Not Interested
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
                 <Label htmlFor="customer_timeframe">Customer Timeframe</Label>
                 <Input
                   id="customer_timeframe"

@@ -6,7 +6,7 @@ import React, { useState } from "react";
 import { Button } from "./ui/button";
 import Image from "next/image";
 import { nav } from "@/lib/config/navigations";
-import { Show, useUser } from "@clerk/nextjs";
+import { Show, UserButton, useUser } from "@clerk/nextjs";
 
 const HomeNavbar = () => {
   const { user } = useUser();
@@ -102,6 +102,7 @@ const HomeNavbar = () => {
             </Show>
 
             <Show when="signed-in">
+              <UserButton />
               {canAccess ? (
                 <Button onClick={() => nav.goToDashboard()}>Dashboard</Button>
               ) : null}
@@ -181,16 +182,27 @@ const HomeNavbar = () => {
                 </Link>
               </li>
               <li className="pt-2">
-                <Button
-                  variant="outline"
-                  className="w-full text-black"
-                  onClick={() => {
-                    closeMobileMenu();
-                    nav.goToSignIn();
-                  }}
-                >
-                  Sign In
-                </Button>
+                <Show when="signed-out">
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => nav.goToSignIn()}
+                  >
+                    Sign In
+                  </Button>
+                </Show>
+
+                <Show when="signed-in">
+                  <UserButton />
+                  {canAccess ? (
+                    <Button
+                      onClick={() => nav.goToDashboard()}
+                      className="w-full"
+                    >
+                      Dashboard
+                    </Button>
+                  ) : null}
+                </Show>
               </li>
             </ul>
           </div>

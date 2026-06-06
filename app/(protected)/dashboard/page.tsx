@@ -4,12 +4,10 @@ import { checkRole } from "@/lib/utils/roles";
 import { redirect } from "next/navigation";
 
 export default async function Page() {
-  if (checkRole("admin")) {
+  if (await checkRole("admin")) {
     redirect(process.env.ADMIN_PATH!);
-  }
-
-  if (checkRole("sales_rep")) {
-    redirect("/sales");
+  } else if (await checkRole("sales_rep")) {
+    redirect(process.env.SALES_REP_PATH!);
   }
 
   redirect("/404");

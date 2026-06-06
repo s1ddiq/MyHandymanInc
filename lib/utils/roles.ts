@@ -7,13 +7,11 @@ export async function getCurrentRole() {
 
   const client = await clerkClient();
   const user = await client.users.getUser(userId);
-
+  // console.log(user);
   return user.publicMetadata.role;
 }
 
-export const checkRole = (requiredRole: string) => {
-  return async (req: Request) => {
-    const role = await getCurrentRole();
-    return role === requiredRole;
-  };
-};
+export async function checkRole(requiredRole: string) {
+  const role = await getCurrentRole();
+  return role === requiredRole;
+}

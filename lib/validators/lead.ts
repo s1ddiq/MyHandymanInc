@@ -12,7 +12,6 @@ export const leadSchema = z.object({
   customer_notes: z.string().nullable().optional(),
   service: z.string().min(1, "Service is required"),
   customer_timeframe: z.string().nullable().optional(),
-  contact_status: z.string(),
   status: z.string(),
   location: z.string().nullable().optional(),
 });
@@ -38,6 +37,5 @@ export const DEFAULT_LEAD_VALUES: CreateLeadInput = {
   customer_notes: null,
   service: "",
   customer_timeframe: null,
-  contact_status: "Selected Show Number",
   status: "Potential",
 };

@@ -13,9 +13,9 @@ export const leads = pgTable("leads", {
   customer_notes: text("customer_notes"),
   service: text("service").notNull(),
   customer_timeframe: text("customer_timeframe"),
-  contact_status: text("contact_status")
-    .notNull()
-    .default("Selected Show Number"),
+  // contact_status: text("contact_status")
+  //   .notNull()
+  //   .default("Needs Call"),
   status: text("status").notNull().default("Potential"),
   created_at: timestamp("created_at").defaultNow().notNull(),
   updated_at: timestamp("updated_at").defaultNow().notNull(),

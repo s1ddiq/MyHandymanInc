@@ -9,16 +9,19 @@ import LeadRow from "./components/LeadRow";
 import { Lead } from "@/lib/validators/lead";
 import { useConfirmation } from "@/hooks/use-confirmation";
 import { toast } from "sonner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 
 export default function AdminDashboard() {
   const trpc = useTRPC();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | undefined>();
+  const [activeTab, setActiveTab] = useState("active");
 
   const { confirm, ConfirmationDialog } = useConfirmation();
 
   const {
-    data: leads,
+    data: allLeads,
     isLoading,
     error,
     refetch,
@@ -35,6 +38,12 @@ export default function AdminDashboard() {
       },
     }),
   );
+
+  // Filter leads based on status
+  const activeLeads =
+    allLeads?.filter((lead) => lead.status !== "Submitted") || [];
+  const submittedLeads =
+    allLeads?.filter((lead) => lead.status === "Submitted") || [];
 
   const handleDelete = (lead: Lead) => {
     confirm({
@@ -72,8 +81,12 @@ export default function AdminDashboard() {
               Manage leads, track requests, and update statuses.
             </p>
           </div>
-
-          <Button onClick={handleCreateClick}>Create Lead</Button>
+          <div className="flex gap-2">
+            <Button onClick={handleCreateClick} variant="outline">
+              Upload
+            </Button>
+            <Button onClick={handleCreateClick}>Create Lead</Button>
+          </div>
         </div>
 
         {/* Dialog */}
@@ -83,41 +96,95 @@ export default function AdminDashboard() {
           lead={selectedLead}
         />
 
-        {/* Content */}
-        <div className="space-y-4">
-          {isLoading && (
-            <div className="text-sm text-muted-foreground">
-              Loading leads...
-            </div>
-          )}
+        {/* Tabs */}
+        <Tabs
+          defaultValue="active"
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-4"
+        >
+          <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="active" className="flex items-center gap-2">
+              Active Leads
+              <Badge variant="secondary" className="ml-1">
+                {activeLeads.length}
+              </Badge>
+            </TabsTrigger>
+            <TabsTrigger value="submitted" className="flex items-center gap-2">
+              Submitted by Sales
+              <Badge variant="secondary" className="ml-1">
+                {submittedLeads.length}
+              </Badge>
+            </TabsTrigger>
+          </TabsList>
 
-          {error && (
-            <div className="text-sm text-red-500">Failed to load leads</div>
-          )}
+          {/* Active Leads Tab */}
+          <TabsContent value="active" className="space-y-4">
+            {isLoading && (
+              <div className="text-sm text-muted-foreground">
+                Loading leads...
+              </div>
+            )}
 
-          {!isLoading && leads?.length === 0 && (
-            <div className="rounded-lg border bg-background p-10 text-center">
-              <p className="text-sm text-muted-foreground">No leads found</p>
+            {error && (
+              <div className="text-sm text-red-500">Failed to load leads</div>
+            )}
 
-              <Button
-                className="mt-4"
-                variant="secondary"
-                onClick={handleCreateClick}
-              >
-                Create your first lead
-              </Button>
-            </div>
-          )}
+            {!isLoading && activeLeads.length === 0 && (
+              <div className="rounded-lg border bg-background p-10 text-center">
+                <p className="text-sm text-muted-foreground">
+                  No active leads found
+                </p>
+                <Button
+                  className="mt-4"
+                  variant="secondary"
+                  onClick={handleCreateClick}
+                >
+                  Create your first lead
+                </Button>
+              </div>
+            )}
 
-          {leads?.map((lead) => (
-            <LeadRow
-              key={lead.id}
-              lead={lead}
-              onEdit={() => handleEditClick(lead)}
-              onDelete={() => handleDelete(lead)}
-            />
-          ))}
-        </div>
+            {activeLeads.map((lead) => (
+              <LeadRow
+                key={lead.id}
+                lead={lead}
+                onEdit={() => handleEditClick(lead)}
+                onDelete={() => handleDelete(lead)}
+              />
+            ))}
+          </TabsContent>
+
+          {/* Submitted Leads Tab */}
+          <TabsContent value="submitted" className="space-y-4">
+            {isLoading && (
+              <div className="text-sm text-muted-foreground">
+                Loading leads...
+              </div>
+            )}
+
+            {error && (
+              <div className="text-sm text-red-500">Failed to load leads</div>
+            )}
+
+            {!isLoading && submittedLeads.length === 0 && (
+              <div className="rounded-lg border bg-background p-10 text-center">
+                <p className="text-sm text-muted-foreground">
+                  No submitted leads found
+                </p>
+              </div>
+            )}
+
+            {submittedLeads.map((lead) => (
+              <LeadRow
+                key={lead.id}
+                lead={lead}
+                onEdit={() => handleEditClick(lead)}
+                onDelete={() => handleDelete(lead)}
+              />
+            ))}
+          </TabsContent>
+        </Tabs>
 
         <ConfirmationDialog />
       </div>
