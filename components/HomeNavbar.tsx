@@ -96,9 +96,9 @@ const HomeNavbar = () => {
           {/* CTAs - Right */}
           <div className="md:flex gap-2 sm:gap-3 shrink-0 hidden">
             <Show when="signed-out">
-              <Button variant="outline" onClick={() => nav.goToSignIn()}>
-                Sign In
-              </Button>
+              <Link href="/contact">
+                <Button variant="outline">Free Estimate</Button>
+              </Link>
             </Show>
 
             <Show when="signed-in">
@@ -183,23 +183,19 @@ const HomeNavbar = () => {
               </li>
               <li className="pt-2">
                 <Show when="signed-out">
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => nav.goToSignIn()}
-                  >
-                    Sign In
-                  </Button>
+                  <Link href="/contact">
+                    <Button variant="outline">Free Estimate</Button>
+                  </Link>
                 </Show>
-
                 <Show when="signed-in">
                   <UserButton />
                   {canAccess ? (
                     <Button
+                      variant="outline"
                       onClick={() => nav.goToDashboard()}
                       className="w-full"
                     >
-                      Dashboard
+                      Manage
                     </Button>
                   ) : null}
                 </Show>

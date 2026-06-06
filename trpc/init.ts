@@ -1,5 +1,6 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import { auth, clerkClient } from "@clerk/nextjs/server";
+import { db } from "@/db";
 
 export type Role = "admin" | "sales_rep";
 
@@ -19,6 +20,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
     userId,
     role,
     headers: opts.headers,
+    db: db,
   };
 };
 
@@ -43,6 +45,7 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
     ctx: {
       ...ctx,
       userId: ctx.userId,
+      db: db,
     },
   });
 });

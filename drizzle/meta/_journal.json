@@ -15,6 +15,20 @@
       "when": 1780518711176,
       "tag": "0001_bent_freak",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780781200410,
+      "tag": "0002_sudden_human_robot",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1780781260360,
+      "tag": "0003_dusty_whiplash",
+      "breakpoints": true
     }
   ]
 }

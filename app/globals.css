@@ -156,10 +156,15 @@
   @apply flex items-center justify-center;
 }
 
-/* RESTORATIONS / OVERRITES TO UI LIBRARY */
+/* RESTORATIONS / OVERRITES TO UfI LIBRARY */
 @layer base {
 button:not([disabled]),
 [role="button"]:not([disabled]) {
 cursor: pointer;
 }
+}
+
+.cl-avatarBox {
+  width: 2rem;
+  height: 2rem;
 }

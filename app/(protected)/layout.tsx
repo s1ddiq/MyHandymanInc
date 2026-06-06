@@ -1,6 +1,5 @@
-import AdminDashboard from "@/features/dashboard/AdminDashboard";
+import ProtectedNavbar from "@/features/dashboard/components/ProtectedNavbar";
 import { checkRole } from "@/lib/utils/roles";
-import { UserButton } from "@clerk/nextjs";
 import React from "react";
 
 export default async function AdminLayout({
@@ -10,13 +9,10 @@ export default async function AdminLayout({
 }) {
   if ((await checkRole("admin")) || (await checkRole("sales_rep"))) {
     return (
-      <main className="flex-1">
-        {children}
-
-        <div className="fixed bottom-6 right-6">
-          <UserButton />
-        </div>
-      </main>
+      <>
+        <ProtectedNavbar />
+        <main className="flex-1">{children}</main>
+      </>
     );
   } else {
     return (
