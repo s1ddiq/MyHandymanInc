@@ -96,8 +96,8 @@ const HomeNavbar = () => {
           {/* CTAs - Right */}
           <div className="md:flex gap-2 sm:gap-3 shrink-0 hidden">
             <Show when="signed-out">
-              <Link href="/contact">
-                <Button variant="outline">Free Estimate</Button>
+              <Link href="/sign-in">
+                <Button variant="outline">Sign In</Button>
               </Link>
             </Show>
 
@@ -183,8 +183,8 @@ const HomeNavbar = () => {
               </li>
               <li className="pt-2">
                 <Show when="signed-out">
-                  <Link href="/contact">
-                    <Button variant="outline">Free Estimate</Button>
+                  <Link href="/sign-in">
+                    <Button variant="outline">Sign In</Button>
                   </Link>
                 </Show>
                 <Show when="signed-in">

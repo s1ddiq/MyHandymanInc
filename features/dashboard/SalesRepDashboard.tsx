@@ -97,12 +97,12 @@ const SalesRepDashboard = () => {
 
   return (
     <div className="flex h-screen bg-muted/30 w-full">
-      <div className="mx-auto max-w-7xl w-full flex">
+      <div className="mx-auto max-w-7xl w-full md:flex">
         {/* Collapsible Sidebar - Only Active Leads */}
         <div
           className={cn(
             "bg-background border-x transition-all duration-300 flex flex-col",
-            !isSidebarCollapsed ? "w-[300px]" : "w-[80px]",
+            !isSidebarCollapsed ? "md:w-[300px] w-full" : "w-[80px]",
           )}
         >
           <div className="p-4 border-b flex items-center justify-between">

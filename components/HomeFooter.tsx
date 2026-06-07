@@ -65,6 +65,14 @@ const HomeFooter = () => {
                   <ChevronRight className="w-4 h-4" /> Contact Us
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/sign-in"
+                  className="hover:text-primary transition-colors flex items-center gap-1 underline"
+                >
+                  <ChevronRight className="w-4 h-4" /> I'm an Employee
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -116,9 +124,11 @@ const HomeFooter = () => {
               Ready to start your next project? Contact us today for a free,
               no-obligation estimate.
             </p>
-            <Button className="w-full bg-primary hover:bg-primary/90">
-              Get Your Estimate
-            </Button>
+            <Link href="/contact">
+              <Button className="w-full bg-primary hover:bg-primary/90">
+                Get Your Estimate
+              </Button>
+            </Link>
             <div className="mt-6 pt-6 border-t border-gray-800">
               <div className="flex items-center gap-2 text-sm text-gray-400">
                 <CheckCircle2 className="w-4 h-4 text-green-500" />
