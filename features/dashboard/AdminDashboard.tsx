@@ -92,18 +92,9 @@ export default function AdminDashboard() {
             {!isSidebarCollapsed && (
               <h2 className="font-semibold text-lg">Leads</h2>
             )}
-            {/* <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              className="h-8 w-8 p-0"
-            >
-              {isSidebarCollapsed ? (
-                <ChevronRight size={18} />
-              ) : (
-                <ChevronLeft size={18} />
-              )}
-            </Button> */}
+            <Button size="sm" onClick={() => setIsDialogOpen(true)}>
+              + Create
+            </Button>
           </div>
 
           {!isSidebarCollapsed ? (

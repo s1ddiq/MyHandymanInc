@@ -29,11 +29,106 @@ import {
   leadSchema,
   DEFAULT_LEAD_VALUES,
 } from "@/lib/validators/lead";
+import { FileJson, X } from "lucide-react";
+import { useState } from "react";
 
 interface LeadFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   lead?: Lead;
+}
+
+// Helper function to infer form data from JSON
+function inferFormDataFromJson(jsonData: any): Partial<CreateLeadInput> {
+  const inferredData: Partial<CreateLeadInput> = {};
+
+  // Map customer name
+  if (jsonData.customer?.fullName) {
+    inferredData.name = jsonData.customer.fullName;
+  } else if (jsonData.messaging?.customerName) {
+    inferredData.name = jsonData.messaging.customerName;
+  }
+
+  // Map email
+  if (jsonData.contact?.email) {
+    inferredData.email = jsonData.contact.email;
+  }
+
+  // Map phone
+  if (jsonData.contact?.phone) {
+    inferredData.phone = jsonData.contact.phone;
+  }
+
+  // Map service
+  if (jsonData.jobDetails?.service) {
+    inferredData.service = jsonData.jobDetails.service;
+  }
+
+  // Map location
+  if (jsonData.jobDetails?.location) {
+    inferredData.location = jsonData.jobDetails.location;
+  }
+
+  // Map status from customer contactStatus or jobStatus
+  if (
+    jsonData.customer?.contactStatus &&
+    [
+      "Potential",
+      "Contacted",
+      "Qualified",
+      "Proposal",
+      "Negotiation",
+      "Won",
+      "Lost",
+    ].includes(jsonData.customer.contactStatus)
+  ) {
+    inferredData.status = jsonData.customer.contactStatus;
+  } else if (
+    jsonData.customer?.jobStatus &&
+    [
+      "Potential",
+      "Contacted",
+      "Qualified",
+      "Proposal",
+      "Negotiation",
+      "Won",
+      "Lost",
+    ].includes(jsonData.customer.jobStatus)
+  ) {
+    inferredData.status = jsonData.customer.jobStatus;
+  }
+
+  // Map customer timeframe
+  if (jsonData.jobDetails?.customerTimeframe) {
+    inferredData.customer_timeframe = jsonData.jobDetails.customerTimeframe;
+  }
+
+  // Map description from job details
+  if (jsonData.jobDetails?.customerNotes) {
+    inferredData.description = jsonData.jobDetails.customerNotes;
+  } else if (jsonData.jobDetails?.service) {
+    inferredData.description = `${jsonData.jobDetails.service} - ${jsonData.jobDetails.location || "Location TBD"}`;
+  }
+
+  // // Map job details
+  // if (jsonData.jobDetails) {
+  //   const jobDetailsStr = JSON.stringify(jsonData.jobDetails, null, 2);
+  //   inferredData.job_details = jobDetailsStr;
+  // }
+
+  // Map customer notes
+  if (jsonData.jobDetails?.customerNotes) {
+    inferredData.customer_notes = jsonData.jobDetails.customerNotes;
+  }
+
+  // Map appointment if exists
+  if (jsonData.appointment?.hasAppointmentSection) {
+    // You might want to parse a specific appointment date if available
+    // For now, we'll leave it as is or you can add logic to extract date
+    inferredData.appointment = undefined;
+  }
+
+  return inferredData;
 }
 
 export function LeadFormDialog({
@@ -45,6 +140,8 @@ export function LeadFormDialog({
   const router = useRouter();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+  const [showJsonInput, setShowJsonInput] = useState(false);
+  const [jsonText, setJsonText] = useState("");
 
   const form = useForm<CreateLeadInput>({
     resolver: zodResolver(leadSchema),
@@ -102,6 +199,32 @@ export function LeadFormDialog({
     }),
   );
 
+  const handlePasteJson = () => {
+    if (!jsonText.trim()) {
+      toast.error("Please paste some JSON data");
+      return;
+    }
+
+    try {
+      const jsonData = JSON.parse(jsonText);
+      const inferredData = inferFormDataFromJson(jsonData);
+
+      // Update form fields with inferred data
+      Object.entries(inferredData).forEach(([key, value]) => {
+        if (value !== undefined) {
+          form.setValue(key as keyof CreateLeadInput, value);
+        }
+      });
+
+      toast.success("Form fields populated from pasted JSON!");
+      setShowJsonInput(false);
+      setJsonText("");
+    } catch (error) {
+      console.error("Error parsing JSON:", error);
+      toast.error("Invalid JSON format. Please check and try again.");
+    }
+  };
+
   // ✅ FIXED: Remove explicit type annotation
   const onSubmit = form.handleSubmit(async (data) => {
     if (isEditing) {
@@ -120,11 +243,81 @@ export function LeadFormDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-7xl! w-full! max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+        <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle className="text-2xl font-bold">
             {isEditing ? "Edit Lead" : "Create New Lead"}
           </DialogTitle>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setShowJsonInput(!showJsonInput)}
+            className="gap-2"
+          >
+            <FileJson className="h-4 w-4" />
+            {showJsonInput ? "Cancel" : "Paste JSON"}
+          </Button>
         </DialogHeader>
+
+        {showJsonInput && (
+          <div className="mb-6 p-4 border rounded-lg bg-muted/30">
+            <div className="flex items-center justify-between mb-3">
+              <Label className="text-sm font-semibold">Paste JSON Data</Label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setShowJsonInput(false);
+                  setJsonText("");
+                }}
+                className="h-6 w-6 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <Textarea
+              value={jsonText}
+              onChange={(e) => setJsonText(e.target.value)}
+              placeholder='Paste your JSON here. Example:
+{
+  "appointment": {
+    "hasAppointmentSection": true
+  },
+  "contact": {
+    "email": "customer@example.com",
+    "phone": "(555) 123-4567"
+  },
+  "customer": {
+    "fullName": "John Doe",
+    "contactStatus": "Potential"
+  },
+  "jobDetails": {
+    "service": "Appliance Repair",
+    "location": "Brooklyn, NY",
+    "customerTimeframe": "Ready to hire",
+    "customerNotes": "Issue with washing machine"
+  }
+}'
+              rows={8}
+              className="font-mono text-sm"
+            />
+            <div className="flex justify-end mt-3 gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setShowJsonInput(false);
+                  setJsonText("");
+                }}
+              >
+                Cancel
+              </Button>
+              <Button type="button" onClick={handlePasteJson}>
+                Parse & Fill Form
+              </Button>
+            </div>
+          </div>
+        )}
 
         <form onSubmit={onSubmit} className="space-y-6">
           {/* Basic Information Section */}
