@@ -318,70 +318,47 @@ export function LeadFormDialog({
           </Button>
         </DialogHeader>
 
-        {showJsonInput && (
-          <div className="mb-6 p-4 border rounded-lg bg-muted/30">
-            <div className="flex items-center justify-between mb-3">
-              <Label className="text-sm font-semibold">
-                Paste JSON Data (auto-creates lead)
-              </Label>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setShowJsonInput(false);
-                  setJsonText("");
-                }}
-                className="h-6 w-6 p-0"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-            <Textarea
-              value={jsonText}
-              onPaste={handleJsonPaste}
-              onChange={(e) => setJsonText(e.target.value)}
-              placeholder='Paste your JSON here and it will automatically create the lead. Example:
-{
-  "appointment": {
-    "date": "2026-06-15T14:30:00.000Z",
-    "hasAppointmentSection": true
-  },
-  "contact": {
-    "email": "customer@example.com",
-    "phone": "(555) 123-4567"
-  },
-  "customer": {
-    "fullName": "John Doe",
-    "contactStatus": "Potential"
-  },
-  "jobDetails": {
-    "service": "Appliance Repair",
-    "location": "Brooklyn, NY",
-    "customerTimeframe": "Ready to hire",
-    "customerNotes": "Issue with washing machine"
-  }
-}'
-              rows={8}
-              className="font-mono text-sm"
-            />
-            <div className="flex justify-end mt-3 gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  setShowJsonInput(false);
-                  setJsonText("");
-                }}
-              >
-                Cancel
-              </Button>
-              <Button type="button" onClick={handlePasteJson}>
-                Parse & Fill Form (Manual)
-              </Button>
-            </div>
+        <div className="mb-6 rounded-lg bg-muted/30">
+          <div className="flex items-center justify-between mb-3">
+            <Label className="text-sm font-semibold">
+              Paste JSON Data (auto-creates lead)
+            </Label>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setShowJsonInput(false);
+                setJsonText("");
+              }}
+              className="h-6 w-6 p-0"
+            >
+              <X className="h-4 w-4" />
+            </Button>
           </div>
-        )}
+          <Textarea
+            value={jsonText}
+            onPaste={handleJsonPaste}
+            onChange={(e) => setJsonText(e.target.value)}
+            placeholder="Paste your JSON here."
+            rows={8}
+            className="font-mono text-sm"
+          />
+          {/* <div className="flex justify-end mt-3 gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowJsonInput(false);
+                setJsonText("");
+              }}
+            >
+              Cancel
+            </Button> */}
+          {/* <Button type="button" onClick={handlePasteJson}>
+              Parse & Fill Form (Manual)
+            </Button> */}
+        </div>
 
         <form onSubmit={onSubmit} className="space-y-6">
           {/* Basic Information Section */}

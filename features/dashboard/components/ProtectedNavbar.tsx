@@ -7,8 +7,8 @@ import { UserButton } from "@clerk/nextjs";
 
 const ProtectedNavbar = () => {
   return (
-    <header className="bg-primary py-2 sticky top-0 z-50 flex-center">
-      <div className="mx-auto flex items-center justify-between gap-4 w-full max-w-7xl">
+    <header className="bg-primary py-2 w-full sticky top-0 z-50 flex-center">
+      <div className=" flex items-center justify-between gap-4 w-full px-4">
         {/* Logo - Left */}
         <div className="shrink-0">
           <Link
