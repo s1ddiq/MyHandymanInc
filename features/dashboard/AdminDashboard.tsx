@@ -92,7 +92,7 @@ export default function AdminDashboard() {
             {!isSidebarCollapsed && (
               <h2 className="font-semibold text-lg">Leads</h2>
             )}
-            <Button size="sm" onClick={() => setIsDialogOpen(true)}>
+            <Button size="sm" onClick={handleCreateClick}>
               + Create
             </Button>
           </div>

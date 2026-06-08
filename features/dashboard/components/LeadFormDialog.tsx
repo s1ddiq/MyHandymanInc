@@ -30,7 +30,7 @@ import {
   DEFAULT_LEAD_VALUES,
 } from "@/lib/validators/lead";
 import { FileJson, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 interface LeadFormDialogProps {
   open: boolean;
@@ -110,22 +110,28 @@ function inferFormDataFromJson(jsonData: any): Partial<CreateLeadInput> {
     inferredData.description = `${jsonData.jobDetails.service} - ${jsonData.jobDetails.location || "Location TBD"}`;
   }
 
-  // // Map job details
-  // if (jsonData.jobDetails) {
-  //   const jobDetailsStr = JSON.stringify(jsonData.jobDetails, null, 2);
-  //   inferredData.job_details = jobDetailsStr;
-  // }
-
   // Map customer notes
   if (jsonData.jobDetails?.customerNotes) {
     inferredData.customer_notes = jsonData.jobDetails.customerNotes;
   }
 
-  // Map appointment if exists
-  if (jsonData.appointment?.hasAppointmentSection) {
-    // You might want to parse a specific appointment date if available
-    // For now, we'll leave it as is or you can add logic to extract date
-    inferredData.appointment = undefined;
+  // Map appointment if exists with EST timezone handling
+  if (jsonData.appointment?.date || jsonData.appointment?.time) {
+    // Try to construct appointment date from various formats
+    let appointmentDate = null;
+
+    if (jsonData.appointment.date) {
+      appointmentDate = new Date(jsonData.appointment.date);
+    } else if (jsonData.appointment.datetime) {
+      appointmentDate = new Date(jsonData.appointment.datetime);
+    } else if (jsonData.appointment.scheduledDate) {
+      appointmentDate = new Date(jsonData.appointment.scheduledDate);
+    }
+
+    // If we have a valid date, use it
+    if (appointmentDate && !isNaN(appointmentDate.getTime())) {
+      inferredData.appointment = appointmentDate.toISOString();
+    }
   }
 
   return inferredData;
@@ -142,6 +148,7 @@ export function LeadFormDialog({
   const queryClient = useQueryClient();
   const [showJsonInput, setShowJsonInput] = useState(false);
   const [jsonText, setJsonText] = useState("");
+  const isProcessingRef = useRef(false);
 
   const form = useForm<CreateLeadInput>({
     resolver: zodResolver(leadSchema),
@@ -202,7 +209,7 @@ export function LeadFormDialog({
   const handlePasteJson = () => {
     if (!jsonText.trim()) {
       toast.error("Please paste some JSON data");
-      return;
+      return false;
     }
 
     try {
@@ -219,19 +226,72 @@ export function LeadFormDialog({
       toast.success("Form fields populated from pasted JSON!");
       setShowJsonInput(false);
       setJsonText("");
+      return true;
     } catch (error) {
       console.error("Error parsing JSON:", error);
       toast.error("Invalid JSON format. Please check and try again.");
+      return false;
     }
   };
 
-  // ✅ FIXED: Remove explicit type annotation
+  // Auto-create lead when JSON is pasted
+  const handleJsonPaste = async (
+    e: React.ClipboardEvent<HTMLTextAreaElement>,
+  ) => {
+    const pastedText = e.clipboardData.getData("text");
+    setJsonText(pastedText);
+
+    // Don't auto-submit if we're already processing
+    if (isProcessingRef.current) return;
+
+    isProcessingRef.current = true;
+
+    try {
+      // Small delay to ensure state updates
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      const jsonData = JSON.parse(pastedText);
+      const inferredData = inferFormDataFromJson(jsonData);
+
+      // Update form fields
+      Object.entries(inferredData).forEach(([key, value]) => {
+        if (value !== undefined) {
+          form.setValue(key as keyof CreateLeadInput, value);
+        }
+      });
+
+      toast.success("Form populated from pasted JSON!");
+
+      // Auto-submit the form after populating
+      setTimeout(() => {
+        form.handleSubmit(async (data) => {
+          if (isEditing) {
+            await updateMutation.mutateAsync({
+              id: lead.id,
+              data: data,
+            });
+          } else {
+            await createMutation.mutateAsync(data);
+          }
+        })();
+      }, 100);
+
+      setShowJsonInput(false);
+      setJsonText("");
+    } catch (error) {
+      console.error("Error processing pasted JSON:", error);
+      toast.error("Invalid JSON format. Please check and try again.");
+    } finally {
+      isProcessingRef.current = false;
+    }
+  };
+
+  // Manual submit handler
   const onSubmit = form.handleSubmit(async (data) => {
     if (isEditing) {
-      // ✅ Pass as { id, data }
       await updateMutation.mutateAsync({
         id: lead.id,
-        data: data, // 👈 Wrap in 'data' property
+        data: data,
       });
     } else {
       await createMutation.mutateAsync(data);
@@ -261,7 +321,9 @@ export function LeadFormDialog({
         {showJsonInput && (
           <div className="mb-6 p-4 border rounded-lg bg-muted/30">
             <div className="flex items-center justify-between mb-3">
-              <Label className="text-sm font-semibold">Paste JSON Data</Label>
+              <Label className="text-sm font-semibold">
+                Paste JSON Data (auto-creates lead)
+              </Label>
               <Button
                 type="button"
                 variant="ghost"
@@ -277,10 +339,12 @@ export function LeadFormDialog({
             </div>
             <Textarea
               value={jsonText}
+              onPaste={handleJsonPaste}
               onChange={(e) => setJsonText(e.target.value)}
-              placeholder='Paste your JSON here. Example:
+              placeholder='Paste your JSON here and it will automatically create the lead. Example:
 {
   "appointment": {
+    "date": "2026-06-15T14:30:00.000Z",
     "hasAppointmentSection": true
   },
   "contact": {
@@ -313,7 +377,7 @@ export function LeadFormDialog({
                 Cancel
               </Button>
               <Button type="button" onClick={handlePasteJson}>
-                Parse & Fill Form
+                Parse & Fill Form (Manual)
               </Button>
             </div>
           </div>

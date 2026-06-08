@@ -248,6 +248,35 @@ const LeadRow = ({
           <Info label="Location" value={lead.location} />
 
           <Info label="Status" value={lead.status} />
+          <Info
+            label="Appointment"
+            value={
+              lead.appointment
+                ? (() => {
+                    const d = new Date(lead.appointment);
+                    const day = d.getDate();
+                    const suffix =
+                      day > 3 && day < 21
+                        ? "th"
+                        : ["st", "nd", "rd"][(day % 10) - 1] || "th";
+                    const dateStr = d
+                      .toLocaleDateString("en-GB", {
+                        weekday: "long",
+                        month: "long",
+                        year: "numeric",
+                        timeZone: "America/New_York",
+                      })
+                      .replace(/\d+/, day + suffix);
+                    const timeStr = d.toLocaleTimeString("en-US", {
+                      hour: "numeric",
+                      minute: "2-digit",
+                      timeZone: "America/New_York",
+                    });
+                    return `${dateStr} at ${timeStr} EST`;
+                  })()
+                : "No appointment is booked."
+            }
+          />
         </div>
 
         {lead.customer_notes && (
