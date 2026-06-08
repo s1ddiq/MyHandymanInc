@@ -1,104 +1,211 @@
 "use client";
 
+import { Menu, PhoneCall, X } from "lucide-react";
 import Link from "next/link";
+import React, { useState } from "react";
+import { Button } from "./ui/button";
 import Image from "next/image";
-import { UserButton } from "@clerk/nextjs";
-import { Button } from "@/components/ui/button";
-import { Moon, Bell, Plus } from "lucide-react";
+import { nav } from "@/lib/config/navigations";
+import { Show, UserButton, useUser } from "@clerk/nextjs";
 
-const ProtectedNavbar = () => {
+const HomeNavbar = () => {
+  const { user } = useUser();
+  const canAccess =
+    user?.publicMetadata?.role === "admin" ||
+    user?.publicMetadata?.role === "sales_rep";
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
   return (
-    <header
-      className="
-      sticky top-0 z-50
-      border-b
-      bg-background/80
-      backdrop-blur-xl
-      supports-[backdrop-filter]:bg-background/60
-      dark:bg-zinc-950/80
-    "
-    >
-      <div className="mx-auto w-full px-4 lg:px-8 h-20 flex items-center justify-between">
-        {/* LEFT */}
-
-        <Link href="/dashboard" className="flex items-center gap-4 group">
-          <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center transition group-hover:scale-105">
-            <Image src="/favicon.ico" alt="logo" width={34} height={34} />
-          </div>
-
-          <div className="hidden sm:block">
-            <h1 className="font-bold text-xl leading-none">MyHandymanInc</h1>
-
-            <p className="text-xs text-muted-foreground mt-1">
-              Contractor CRM Dashboard
-            </p>
-          </div>
+    <header className="bg-background md:static sticky top-0 z-90">
+      {/* Top bar with phone number - this will scroll away */}
+      <div className="bg-primary/80 text-primary-foreground p-2 text-sm sm:text-base md:text-lg font-bold tracking-wide  md:flex hidden justify-center items-center">
+        <Link href="tel:2032086095" className="hover:underline">
+          <PhoneCall className="inline mr-3 size-5.5" />
+          CALL US NOW: (203) 208-6095
         </Link>
-
-        {/* RIGHT */}
-
-        <div className="flex items-center gap-3">
-          {/* quick create */}
-
-          <Button size="sm" className="hidden md:flex rounded-xl shadow">
-            <Plus className="mr-2 h-4 w-4" />
-            New Lead
-          </Button>
-
-          {/* notification */}
-
-          <Button size="icon" variant="ghost" className="rounded-xl relative">
-            <Bell className="h-5 w-5" />
-
-            <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-          </Button>
-
-          {/* dark mode */}
-
-          <Button
-            variant="ghost"
-            size="icon"
-            className="
-            rounded-xl
-            hover:bg-primary/10
-          "
-          >
-            <Moon className="h-5 w-5" />
-          </Button>
-
-          <div className="border-l h-8 mx-1" />
-
-          <UserButton
-            appearance={{
-              elements: {
-                avatarBox: "h-10 w-10 rounded-xl shadow-sm",
-              },
-            }}
-          />
-        </div>
       </div>
+
+      {/* Main navigation bar - ONLY this will stick */}
+      <nav className="bg-primary px-4 sm:px-6 py-3 sm:py-4 md:py-6 sticky top-0 z-50">
+        <div className="mx-auto flex items-center justify-between gap-4">
+          {/* Logo / Header - Left */}
+          <div className="shrink-0">
+            <Link
+              href="/"
+              className="text-base sm:text-lg md:text-xl font-bold text-primary-foreground hover:opacity-80 transition-opacity flex gap-3 items-center bofrder border-wfhite p-3"
+              onClick={closeMobileMenu}
+            >
+              <Image
+                src="/favicon.ico"
+                alt="Company Logo"
+                width={32}
+                height={32}
+              />
+              <p className=" font-bold">MyHandymanInc</p>
+            </Link>
+          </div>
+
+          {/* Navigation Links - Center */}
+          <ul className="hidden md:flex space-x-4 lg:space-x-8 text-sm lg:text-base font-medium text-primary-foreground">
+            <li>
+              <Link href="/" className="hover:underline transition-all">
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/roof-repair"
+                className="hover:underline transition-all"
+              >
+                Roof Repair
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/appliance-repair"
+                className="hover:underline transition-all"
+              >
+                Appliance Repair
+              </Link>
+            </li>
+            <li>
+              <Link href="/services" className="hover:underline transition-all">
+                Services
+              </Link>
+            </li>
+            <li>
+              <Link href="/why-us" className="hover:underline transition-all">
+                Why Us
+              </Link>
+            </li>
+            <li>
+              <Link href="/contact" className="hover:underline transition-all">
+                Contact Us
+              </Link>
+            </li>
+          </ul>
+
+          {/* CTAs - Right */}
+          <div className="md:flex gap-2 sm:gap-3 shrink-0 hidden">
+            <Show when="signed-out">
+              <Link href="/sign-in">
+                <Button variant="outline">Sign In</Button>
+              </Link>
+            </Show>
+
+            <Show when="signed-in">
+              <UserButton />
+              {canAccess ? (
+                <Button onClick={() => nav.goToDashboard()}>Dashboard</Button>
+              ) : null}
+            </Show>
+          </div>
+
+          {/* Mobile menu button */}
+          <button
+            className="md:hidden text-primary-foreground p-2 hover:bg-primary-foreground/10 rounded-lg transition-colors"
+            onClick={toggleMobileMenu}
+            aria-label="Toggle menu"
+          >
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+
+        {/* Mobile navigation links - Slide down menu */}
+        <div
+          className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+            isMobileMenuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+          }`}
+        >
+          <div className="mt-3 pt-3 border-t border-primary-foreground/20">
+            <ul className="flex flex-col space-y-3 text-sm font-medium text-primary-foreground pb-4">
+              <li>
+                <Link
+                  href="/"
+                  className="block hover:underline transition-all py-1"
+                  onClick={closeMobileMenu}
+                >
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/roof-repair"
+                  className="block hover:underline transition-all py-1"
+                  onClick={closeMobileMenu}
+                >
+                  Roof Repair
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/appliance-repair"
+                  className="block hover:underline transition-all py-1"
+                  onClick={closeMobileMenu}
+                >
+                  Appliance Repair
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/services"
+                  className="block hover:underline transition-all py-1"
+                  onClick={closeMobileMenu}
+                >
+                  Services
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/why-us"
+                  className="block hover:underline transition-all py-1"
+                  onClick={closeMobileMenu}
+                >
+                  Why Us
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/contact"
+                  className="block hover:underline transition-all py-1"
+                  onClick={closeMobileMenu}
+                >
+                  Contact Us
+                </Link>
+              </li>
+              <li className="pt-2">
+                <Show when="signed-out">
+                  <Link href="/sign-in">
+                    <Button variant="outline">Sign In</Button>
+                  </Link>
+                </Show>
+                <Show when="signed-in">
+                  <UserButton />
+                  {canAccess ? (
+                    <Button
+                      variant="outline"
+                      onClick={() => nav.goToDashboard()}
+                      className="w-full"
+                    >
+                      Manage
+                    </Button>
+                  ) : null}
+                </Show>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
     </header>
   );
 };
 
-export default ProtectedNavbar;
-
-// import { useTheme } from "next-themes";
-// import { Moon, Sun } from "lucide-react";
-
-// const { theme, setTheme } = useTheme();
-
-// <Button
-//   variant="ghost"
-//   size="icon"
-//   className="rounded-xl"
-//   onClick={() =>
-//     setTheme(theme === "dark" ? "light" : "dark")
-//   }
-// >
-//   {theme === "dark" ? (
-//     <Sun className="h-5 w-5" />
-//   ) : (
-//     <Moon className="h-5 w-5" />
-//   )}
-// </Button>
+export default HomeNavbar;
