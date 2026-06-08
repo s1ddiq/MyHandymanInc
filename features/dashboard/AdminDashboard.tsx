@@ -47,6 +47,7 @@ export default function AdminDashboard() {
       onSuccess() {
         toast.success("Lead deleted.");
         refetch();
+        setSelectedLeadForView(null);
       },
       onError(e: any) {
         toast.error(e.message);
@@ -112,46 +113,14 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen  bg-muted/20 dark:bg-zinc-950">
-      <div className="mx-auto p-6">
-        {/* HERO */}
-
-        {/* STATS */}
-
-        {/* <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-          <StatCard
-            title="Active"
-            value={activeLeads.length}
-            icon={<Inbox className="h-5 w-5" />}
-          />
-
-          <StatCard
-            title="Booked"
-            value={bookedCount}
-            icon={<CalendarCheck className="h-5 w-5 text-green-600" />}
-          />
-
-          <StatCard
-            title="Submitted"
-            value={submittedLeads.length}
-            icon={<Clock3 className="h-5 w-5" />}
-          />
-
-          <StatCard
-            title="Total"
-            value={allLeads?.length ?? 0}
-            icon={<Inbox className="h-5 w-5" />}
-          />
-        </div> */}
-
-        <div className="grid xl:grid-cols-[370px_1fr] gap-6">
+    <div className="h-[calc(100vh-72px)] bg-muted/20 dark:bg-zinc-950 overflow-hidden">
+      <div className="h-full mx-auto p-6">
+        <div className="grid xl:grid-cols-[370px_1fr] gap-6 h-full">
           {/* SIDEBAR */}
-
-          <div className="rounded-3xl border bg-background dark:bg-zinc-900 overflow-hidden h-fit sticky top-24">
+          <div className="rounded-3xl border bg-background dark:bg-zinc-900 overflow-hidden h-full flex flex-col">
             <div className="p-5 border-b">
               <div className="relative">
                 <Search className="absolute left-3 top-2 h-4 w-4 text-muted-foreground" />
-
                 <Input
                   className="pl-9 rounded-xl"
                   placeholder="Search leads..."
@@ -161,14 +130,13 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="p-4">
+            <div className="p-4 border-b">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="grid grid-cols-2 w-full rounded-xl">
                   <TabsTrigger value="active">
                     Active
-                    <Badge className="ml-2 ">{activeLeads.length}</Badge>
+                    <Badge className="ml-2">{activeLeads.length}</Badge>
                   </TabsTrigger>
-
                   <TabsTrigger value="submitted">
                     Submitted
                     <Badge className="ml-2">{submittedLeads.length}</Badge>
@@ -177,18 +145,16 @@ export default function AdminDashboard() {
               </Tabs>
             </div>
 
-            <div className="max-h-[73vh] overflow-y-auto px-3 pb-3">
+            <div className="flex-1 overflow-y-auto px-3 pb-3">
               {(activeTab === "active" ? activeLeads : submittedLeads).map(
                 (lead) => (
                   <div
                     key={lead.id}
                     onClick={() => setSelectedLeadForView(lead)}
                     className={cn(
-                      "rounded-2xl border p-4 mb-3 cursor-pointer transition-all hover:shadow-lg hover:border-primary",
-
+                      "rounded-2xl border p-4 my-3 cursor-pointer transition-all hover:shadow-lg hover:border-primary",
                       lead.appointment &&
                         "border-l-4 border-l-green-500 bg-green-500/5",
-
                       selectedLeadForView?.id === lead.id &&
                         "border-l border-primary bg-primary/5",
                     )}
@@ -196,12 +162,10 @@ export default function AdminDashboard() {
                     <div className="flex justify-between">
                       <div>
                         <h3 className="font-semibold">{lead.name}</h3>
-
                         <p className="text-xs text-muted-foreground">
                           {lead.service}
                         </p>
                       </div>
-
                       {lead.appointment && (
                         <Badge className="bg-green-600 hover:bg-green-600 text-white">
                           Booked
@@ -222,17 +186,27 @@ export default function AdminDashboard() {
                   </div>
                 ),
               )}
+              {(activeTab === "active" ? activeLeads : submittedLeads)
+                .length === 0 && (
+                <div className="text-center py-12 text-muted-foreground">
+                  <Inbox className="h-12 w-12 mx-auto my-3 opacity-50" />
+                  <p>No {activeTab} leads found</p>
+                  <p className="text-xs mt-1">
+                    {activeTab === "active"
+                      ? "New customer inquiries will appear here"
+                      : "Submitted leads will appear here"}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
           {/* DETAILS */}
-
-          <div className="flex flex-col">
-            <div className="rounded-3xl bordefr bg-background dark:bg-zinc-900 pb-3">
-              <div className="flex flex-col lg:flex-row justify-between gap-6">
+          <div className="flex flex-col h-full">
+            <div className="rounded-3xl border bg-background dark:bg-zinc-900 pb-3">
+              <div className="flex flex-col lg:flex-row justify-between gap-6 p-6">
                 <div>
                   <h1 className="text-3xl font-bold mt-1">Lead Dashboard</h1>
-
                   <p className="text-muted-foreground mt-2">
                     Manage customers, appointments and estimates.
                   </p>
@@ -264,26 +238,27 @@ export default function AdminDashboard() {
                 </div>
               </div>
             </div>
-            {selectedLeadForView ? (
-              <LeadRow
-                lead={selectedLeadForView}
-                onEdit={() => {
-                  setSelectedLead(selectedLeadForView);
-                  setIsDialogOpen(true);
-                }}
-                onDelete={() => handleDelete(selectedLeadForView)}
-              />
-            ) : (
-              <div className="rounded-3xl border bg-background dark:bg-zinc-900 min-h-[700px] flex flex-col justify-center items-center">
-                <Smile className="h-20 w-20 text-primary" />
 
-                <h2 className="text-3xl font-bold mt-6">No Lead Selected</h2>
-
-                <p className="text-muted-foreground mt-2">
-                  Select a customer from the left to view details.
-                </p>
-              </div>
-            )}
+            <div className="flex-1 mt-6">
+              {selectedLeadForView ? (
+                <LeadRow
+                  lead={selectedLeadForView}
+                  onEdit={() => {
+                    setSelectedLead(selectedLeadForView);
+                    setIsDialogOpen(true);
+                  }}
+                  onDelete={() => handleDelete(selectedLeadForView)}
+                />
+              ) : (
+                <div className="rounded-3xl border bg-background dark:bg-zinc-900 h-full flex flex-col justify-center items-center">
+                  <Smile className="h-20 w-20 text-primary" />
+                  <h2 className="text-3xl font-bold mt-6">No Lead Selected</h2>
+                  <p className="text-muted-foreground mt-2">
+                    Select a customer from the left to view details.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -295,28 +270,6 @@ export default function AdminDashboard() {
       />
 
       <ConfirmationDialog />
-    </div>
-  );
-}
-
-function StatCard({
-  title,
-  value,
-  icon,
-}: {
-  title: string;
-  value: number;
-  icon: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-2xl border bg-background dark:bg-zinc-900 p-6 hover:shadow-lg transition">
-      <div className="flex justify-between">
-        <span className="text-muted-foreground text-sm">{title}</span>
-
-        {icon}
-      </div>
-
-      <div className="text-4xl font-bold mt-4">{value}</div>
     </div>
   );
 }

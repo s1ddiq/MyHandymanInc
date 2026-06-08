@@ -98,16 +98,17 @@ export default function SalesRepDashboard() {
           notes: data.notes,
           appointment: data.appointment.toISOString(),
         });
+        setSelectedLeadForView(null);
       },
     });
   };
 
   return (
-    <div className="min-h-screen bg-muted/20 dark:bg-zinc-950">
-      <div className="mx-auto p-6">
-        <div className="grid xl:grid-cols-[370px_1fr] gap-6">
+    <div className="h-[calc(100vh-72px)] bg-muted/20 dark:bg-zinc-950 overflow-hidden">
+      <div className="h-full mx-auto p-6">
+        <div className="grid xl:grid-cols-[370px_1fr] gap-6 h-full">
           {/* SIDEBAR */}
-          <div className="rounded-3xl border bg-background dark:bg-zinc-900 overflow-hidden h-fit sticky top-24">
+          <div className="rounded-3xl border bg-background dark:bg-zinc-900 overflow-hidden h-full flex flex-col">
             <div className="p-5 border-b">
               <div className="relative">
                 <Search className="absolute left-3 top-2 h-4 w-4 text-muted-foreground" />
@@ -127,13 +128,13 @@ export default function SalesRepDashboard() {
               </div>
             </div>
 
-            <div className="max-h-[73vh] overflow-y-auto px-3 pb-3">
+            <div className="flex-1 overflow-y-auto px-3 pb-3">
               {activeLeads.map((lead) => (
                 <div
                   key={lead.id}
                   onClick={() => setSelectedLeadForView(lead)}
                   className={cn(
-                    "rounded-2xl border p-4 mb-3 cursor-pointer transition-all hover:shadow-lg hover:border-primary",
+                    "rounded-2xl border p-4 my-3 cursor-pointer transition-all hover:shadow-lg hover:border-primary",
                     lead.appointment &&
                       "border-l-4 border-l-green-500 bg-green-500/5",
                     selectedLeadForView?.id === lead.id &&
@@ -179,23 +180,40 @@ export default function SalesRepDashboard() {
           </div>
 
           {/* DETAILS */}
-          <div className="flex flex-col">
-            <div className="rounded-3xl bofrder bg-background dark:bg-zinc-900 pb-3">
-              <div className="flex flex-col lg:flex-row justify-between gap-6">
+          <div className="flex flex-col h-full">
+            {/* Header - smaller when lead selected */}
+            <div
+              className={cn(
+                "rounded-3xl bordfer bg-background dark:bg-zinc-900 transition-all",
+                selectedLeadForView ? "pb-2" : "",
+              )}
+            >
+              <div
+                className={cn(
+                  "flex flex-col lg:flex-row justify-between gap-6 px-6",
+                )}
+              >
                 <div>
-                  <h1 className="text-3xl font-bold mt-1">
+                  <h1
+                    className={cn(
+                      "font-bold mt-1",
+                      selectedLeadForView ? "text-2xl" : "text-3xl",
+                    )}
+                  >
                     Sales Dashboard
                     <Badge className="ml-3 bg-blue-500 text-xs align-middle">
                       Sales Rep
                     </Badge>
                   </h1>
-                  <p className="text-muted-foreground mt-2">
-                    Manage active leads, schedule appointments, and submit
-                    completed consultations.
-                  </p>
+                  {!selectedLeadForView && (
+                    <p className="text-muted-foreground mt-2">
+                      Manage active leads, schedule appointments, and submit
+                      completed consultations.
+                    </p>
+                  )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 min-w-[250px]">
+                {/* <div className="grid grid-cols-2 gap-3 min-w-[250px]">
                   <div className="rounded-xl bg-primary/5 p-3 text-center">
                     <Inbox className="h-5 w-5 mx-auto text-primary mb-1" />
                     <p className="text-2xl font-bold">{activeLeads.length}</p>
@@ -210,26 +228,30 @@ export default function SalesRepDashboard() {
                       Appointments
                     </p>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
 
-            {selectedLeadForView ? (
-              <LeadRow
-                lead={selectedLeadForView}
-                forSalesRep={true}
-                onSubmit={(data) => handleSubmit(selectedLeadForView.id, data)}
-              />
-            ) : (
-              <div className="rounded-3xl border bg-background dark:bg-zinc-900 min-h-[700px] flex flex-col justify-center items-center">
-                <UserCheck className="h-20 w-20 text-primary" />
-                <h2 className="text-3xl font-bold mt-6">No Lead Selected</h2>
-                <p className="text-muted-foreground mt-2">
-                  Select a customer from the left to view details and schedule
-                  appointments.
-                </p>
-              </div>
-            )}
+            <div className="flex-1 mt-6">
+              {selectedLeadForView ? (
+                <LeadRow
+                  lead={selectedLeadForView}
+                  forSalesRep={true}
+                  onSubmit={(data) =>
+                    handleSubmit(selectedLeadForView.id, data)
+                  }
+                />
+              ) : (
+                <div className="rounded-3xl border bg-background dark:bg-zinc-900 h-full flex flex-col justify-center items-center">
+                  <UserCheck className="h-20 w-20 text-primary" />
+                  <h2 className="text-3xl font-bold mt-6">No Lead Selected</h2>
+                  <p className="text-muted-foreground mt-2">
+                    Select a customer from the left to view details and schedule
+                    appointments.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

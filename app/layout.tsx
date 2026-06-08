@@ -7,6 +7,7 @@ import HomeFooter from "@/components/HomeFooter";
 import CookieBanner from "@/components/CookieBanner";
 import { ClerkProvider } from "@clerk/nextjs";
 import { TRPCReactProvider } from "@/trpc/client";
+import { ThemeProvider } from "@wrksz/themes/next";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -39,17 +40,19 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html
-        lang="en"
-        className={cn("h-full", "antialiased", roboto.className, "font-sans")}
-      >
-        <body className="min-h-full flex flex-col">
-          <TRPCReactProvider>
-            {children}
-            <CookieBanner />
-          </TRPCReactProvider>
-        </body>
-      </html>
+      <ThemeProvider>
+        <html
+          lang="en"
+          className={cn("h-full", "antialiased", roboto.className, "font-sans")}
+        >
+          <body className="min-h-full flex flex-col">
+            <TRPCReactProvider>
+              {children}
+              <CookieBanner />
+            </TRPCReactProvider>
+          </body>
+        </html>
+      </ThemeProvider>
     </ClerkProvider>
   );
 }
