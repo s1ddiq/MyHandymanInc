@@ -40,7 +40,7 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <ThemeProvider>
+      <ThemeProvider defaultTheme="light">
         <html
           lang="en"
           className={cn("h-full", "antialiased", roboto.className, "font-sans")}

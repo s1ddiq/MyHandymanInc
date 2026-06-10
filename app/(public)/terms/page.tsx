@@ -26,6 +26,16 @@ export default function TermsPage() {
               Welcome to MyHandymanInc. By accessing our website or using our
               services, you agree to the following Terms of Service.
             </p>
+            <p>
+              This website follows the GDPR specifications and any laws related
+              to the web. If you have any issues, contact "s1ddiq". Under no
+              circumstance should you directly contact the legal contractors of
+              this website and they are hereby exempt of any responsibility for
+              this website under law E1390 of the Connecticut Law. You can
+              contact the creator and maintainer of this website at{" "}
+              <a href="mailto:snashct@codescriby.com">snashct@codescriby.com</a>
+              .
+            </p>
 
             <h2 className="text-2xl font-bold mt-8 mb-4">
               1. Services Provided
