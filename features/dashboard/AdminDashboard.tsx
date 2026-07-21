@@ -12,35 +12,31 @@ import { toast } from "sonner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import {
-  Search,
-  Plus,
-  CalendarCheck,
-  Clock3,
-  Inbox,
-  Smile,
-  Trash,
-} from "lucide-react";
+import { Search, Plus, CalendarCheck, Inbox, Smile, Trash } from "lucide-react";
 import { cn } from "@/lib/utils/utils";
 import { formatDistanceToNow } from "date-fns";
+
+type LeadTab = "active" | "submitted";
 
 export default function AdminDashboard() {
   const trpc = useTRPC();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedLead, setSelectedLead] = useState<Lead>();
+  const [selectedLead, setSelectedLead] = useState<Lead | undefined>(undefined);
   const [selectedLeadForView, setSelectedLeadForView] = useState<Lead | null>(
     null,
   );
 
-  const [activeTab, setActiveTab] = useState("active");
+  const [activeTab, setActiveTab] = useState<LeadTab>("active");
   const [search, setSearch] = useState("");
 
   const { confirm, ConfirmationDialog } = useConfirmation();
 
-  const { data: allLeads, refetch } = useQuery(
-    trpc.leads.getPublic.queryOptions(),
-  );
+  const {
+    data: allLeads,
+    isLoading,
+    refetch,
+  } = useQuery(trpc.leads.getPublic.queryOptions());
 
   const deleteMutation = useMutation(
     trpc.leads.delete.mutationOptions({
@@ -70,16 +66,18 @@ export default function AdminDashboard() {
     });
   }
 
+  const matchesSearch = (lead: Lead) =>
+    [lead.name, lead.service, lead.phone]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase()
+      .includes(search.toLowerCase());
+
   const activeLeads = useMemo(() => {
     return sortLeads(
       (allLeads ?? [])
         .filter((x) => x.status !== "Submitted")
-        .filter((x) =>
-          [x.name, x.service, x.phone]
-            .join(" ")
-            .toLowerCase()
-            .includes(search.toLowerCase()),
-        ),
+        .filter(matchesSearch),
     );
   }, [allLeads, search]);
 
@@ -87,16 +85,13 @@ export default function AdminDashboard() {
     return sortLeads(
       (allLeads ?? [])
         .filter((x) => x.status === "Submitted")
-        .filter((x) =>
-          [x.name, x.service, x.phone]
-            .join(" ")
-            .toLowerCase()
-            .includes(search.toLowerCase()),
-        ),
+        .filter(matchesSearch),
     );
   }, [allLeads, search]);
 
   const bookedCount = allLeads?.filter((x) => x.appointment).length ?? 0;
+
+  const currentList = activeTab === "active" ? activeLeads : submittedLeads;
 
   const handleDelete = (lead: Lead) => {
     confirm({
@@ -113,11 +108,11 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="h-[calc(100vh-72px)] bg-muted/20 dark:bg-zinc-950 overflow-hidden">
+    <div className="max-h-screen bg-muted/20 dark:bg-zinc-950 overflow-y-auto">
       <div className="h-full mx-auto p-6">
         <div className="grid xl:grid-cols-[370px_1fr] gap-6 h-full">
           {/* SIDEBAR */}
-          <div className="rounded-3xl border bg-background dark:bg-zinc-900 overflow-hidden h-full flex flex-col">
+          <div className="rounded-3xl border bg-background dark:bg-zinc-900 overflow-hidden max-h-[calc(100vh-72px)] flex flex-col">
             <div className="p-5 border-b">
               <div className="relative">
                 <Search className="absolute left-3 top-2 h-4 w-4 text-muted-foreground" />
@@ -131,7 +126,10 @@ export default function AdminDashboard() {
             </div>
 
             <div className="p-4 border-b">
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <Tabs
+                value={activeTab}
+                onValueChange={(value) => setActiveTab(value as LeadTab)}
+              >
                 <TabsList className="grid grid-cols-2 w-full rounded-xl">
                   <TabsTrigger value="active">
                     Active
@@ -146,8 +144,19 @@ export default function AdminDashboard() {
             </div>
 
             <div className="flex-1 overflow-y-auto px-3 pb-3">
-              {(activeTab === "active" ? activeLeads : submittedLeads).map(
-                (lead) => (
+              {isLoading && (
+                <div className="space-y-3 py-3">
+                  {[...Array(3)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="h-24 rounded-2xl border animate-pulse bg-muted/30"
+                    />
+                  ))}
+                </div>
+              )}
+
+              {!isLoading &&
+                currentList.map((lead) => (
                   <div
                     key={lead.id}
                     onClick={() => setSelectedLeadForView(lead)}
@@ -184,10 +193,9 @@ export default function AdminDashboard() {
                       {formatDistanceToNow(new Date(lead.created_at))} ago
                     </p>
                   </div>
-                ),
-              )}
-              {(activeTab === "active" ? activeLeads : submittedLeads)
-                .length === 0 && (
+                ))}
+
+              {!isLoading && currentList.length === 0 && (
                 <div className="text-center py-12 text-muted-foreground">
                   <Inbox className="h-12 w-12 mx-auto my-3 opacity-50" />
                   <p>No {activeTab} leads found</p>
@@ -201,15 +209,19 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* DETAILS */}
-          <div className="flex flex-col h-full">
-            <div className="rounded-3xl border bg-background dark:bg-zinc-900 pb-3">
+          {/* DETAILS - FIXED SCROLLABLE SECTION */}
+          <div className="flex flex-col h-full min-h-0">
+            <div className="rounded-3xl border bg-background dark:bg-zinc-900 pb-3 flex-shrink-0">
               <div className="flex flex-col lg:flex-row justify-between gap-6 p-6">
                 <div>
                   <h1 className="text-3xl font-bold mt-1">Lead Dashboard</h1>
                   <p className="text-muted-foreground mt-2">
                     Manage customers, appointments and estimates.
                   </p>
+                  <div className="flex items-center gap-2 mt-3 text-sm text-muted-foreground">
+                    <CalendarCheck className="h-4 w-4 text-green-600" />
+                    <span>{bookedCount} booked</span>
+                  </div>
                 </div>
 
                 <div className="flex flex-col gap-2">
@@ -239,16 +251,18 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="flex-1 mt-6">
+            <div className="flex-1 mt-6 min-h-0">
               {selectedLeadForView ? (
-                <LeadRow
-                  lead={selectedLeadForView}
-                  onEdit={() => {
-                    setSelectedLead(selectedLeadForView);
-                    setIsDialogOpen(true);
-                  }}
-                  onDelete={() => handleDelete(selectedLeadForView)}
-                />
+                <div className="rounded-3xl border bg-background dark:bg-zinc-900 h-full overflow-y-auto">
+                  <LeadRow
+                    lead={selectedLeadForView}
+                    onEdit={() => {
+                      setSelectedLead(selectedLeadForView);
+                      setIsDialogOpen(true);
+                    }}
+                    onDelete={() => handleDelete(selectedLeadForView)}
+                  />
+                </div>
               ) : (
                 <div className="rounded-3xl border bg-background dark:bg-zinc-900 h-full flex flex-col justify-center items-center">
                   <Smile className="h-20 w-20 text-primary" />
