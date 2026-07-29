@@ -456,13 +456,13 @@ export function LeadFormDialog({
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Potential">Potential</SelectItem>
-                    <SelectItem value="Contacted">Contacted</SelectItem>
-                    <SelectItem value="Qualified">Qualified</SelectItem>
-                    <SelectItem value="Proposal">Proposal Sent</SelectItem>
-                    <SelectItem value="Negotiation">Negotiation</SelectItem>
-                    <SelectItem value="Won">Won</SelectItem>
-                    <SelectItem value="Lost">Lost</SelectItem>
+                    <SelectItem value="potential">Potential</SelectItem>
+                    <SelectItem value="contacted">Contacted</SelectItem>
+                    <SelectItem value="qualified">Qualified</SelectItem>
+                    <SelectItem value="proposal">Proposal Sent</SelectItem>
+                    <SelectItem value="negotiation">Negotiation</SelectItem>
+                    <SelectItem value="won">Won</SelectItem>
+                    <SelectItem value="lost">Lost</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

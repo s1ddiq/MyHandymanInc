@@ -180,6 +180,23 @@ export default function AdminDashboard() {
                           Booked
                         </Badge>
                       )}
+
+                      {lead.status === "lost" && (
+                        <Badge className="bg-red-600 hover:bg-red-600 text-white">
+                          Lost
+                        </Badge>
+                      )}
+                      {lead.status === "won" && (
+                        <Badge className="bg-blue-600 hover:bg-blue-600 text-white">
+                          Won
+                        </Badge>
+                      )}
+
+                      {lead.status === "contacted" && (
+                        <Badge className="bg-yellow-600 hover:bg-yellow-600 text-white">
+                          Contacted
+                        </Badge>
+                      )}
                     </div>
 
                     {lead.appointment && (
