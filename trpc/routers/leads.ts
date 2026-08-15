@@ -12,7 +12,7 @@ import { eq, ne } from "drizzle-orm";
 import { getCurrentRole } from "@/lib/utils/roles";
 
 export const leadsRouter = createTRPCRouter({
-  create: adminProcedure.input(createLeadSchema).mutation(async ({ input }) => {
+  create: staffProcedure.input(createLeadSchema).mutation(async ({ input }) => {
     try {
       await db.insert(leads).values(input);
       return {
@@ -78,7 +78,7 @@ export const leadsRouter = createTRPCRouter({
       }
     }),
 
-  delete: adminProcedure
+  delete: staffProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       try {
