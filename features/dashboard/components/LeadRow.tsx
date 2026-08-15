@@ -189,10 +189,10 @@ const LeadRow = ({
             className="w-full ml-auto"
             disabled={!newLeadNotes}
             onClick={() => {
-              if (selectedAppointment && onSubmit) {
+              if (newLeadNotes && onSubmit) {
                 onSubmit({
                   notes: newLeadNotes,
-                  appointment: new Date(selectedAppointment),
+                  appointment: new Date(selectedAppointment) ?? undefined,
                 });
               }
             }}

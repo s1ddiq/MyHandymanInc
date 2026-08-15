@@ -85,18 +85,18 @@ export default function SalesRepDashboard() {
 
   const handleSubmit = (
     leadId: number,
-    data: { notes: string; appointment: Date },
+    data: { notes: string; appointment?: Date },
   ) => {
     confirm({
       title: "Submit Lead",
-      description: `Are you sure you want to submit this lead with appointment on ${data.appointment.toLocaleDateString()} at ${data.appointment.toLocaleTimeString()}? This will mark the lead as submitted and it will be removed from your dashboard.`,
+      description: `Are you sure you want to submit this lead with appointment on ${data.appointment?.toLocaleDateString()} at ${data.appointment?.toLocaleTimeString()}? This will mark the lead as submitted and it will be removed from your dashboard.`,
       confirmText: "Submit",
       variant: "default",
       onConfirm: async () => {
         await submitMutation.mutateAsync({
           id: leadId,
           notes: data.notes,
-          appointment: data.appointment.toISOString(),
+          appointment: data.appointment?.toISOString(),
         });
         setSelectedLeadForView(null);
       },
@@ -104,11 +104,11 @@ export default function SalesRepDashboard() {
   };
 
   return (
-    <div className="h-[calc(100vh-72px)] bg-muted/20 dark:bg-zinc-950 overflow-hidden">
+    <div className="max-h-screen bg-muted/20 dark:bg-zinc-950 overflow-y-auto">
       <div className="h-full mx-auto p-6">
         <div className="grid xl:grid-cols-[370px_1fr] gap-6 h-full">
           {/* SIDEBAR */}
-          <div className="rounded-3xl border bg-background dark:bg-zinc-900 overflow-hidden h-full flex flex-col">
+          <div className="rounded-3xl border bg-background dark:bg-zinc-900 overflow-hidden max-h-[calc(100vh-72px)] flex flex-col">
             <div className="p-5 border-b">
               <div className="relative">
                 <Search className="absolute left-3 top-2 h-4 w-4 text-muted-foreground" />
@@ -180,17 +180,17 @@ export default function SalesRepDashboard() {
           </div>
 
           {/* DETAILS */}
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col h-full min-h-0">
             {/* Header - smaller when lead selected */}
             <div
               className={cn(
-                "rounded-3xl bordfer bg-background dark:bg-zinc-900 transition-all",
+                "rounded-3xl border bg-background dark:bg-zinc-900 pb-3 flex-shrink-0",
                 selectedLeadForView ? "pb-2" : "",
               )}
             >
               <div
                 className={cn(
-                  "flex flex-col lg:flex-row justify-between gap-6 px-6",
+                  "flex flex-col lg:flex-row justify-between gap-6 px-6 pt-6",
                 )}
               >
                 <div>
@@ -232,15 +232,17 @@ export default function SalesRepDashboard() {
               </div>
             </div>
 
-            <div className="flex-1 mt-6">
+            <div className="flex-1 mt-6 min-h-0">
               {selectedLeadForView ? (
-                <LeadRow
-                  lead={selectedLeadForView}
-                  forSalesRep={true}
-                  onSubmit={(data) =>
-                    handleSubmit(selectedLeadForView.id, data)
-                  }
-                />
+                <div className="rounded-3xl border bg-background dark:bg-zinc-900 h-full overflow-y-auto">
+                  <LeadRow
+                    lead={selectedLeadForView}
+                    forSalesRep={true}
+                    onSubmit={(data) =>
+                      handleSubmit(selectedLeadForView.id, data)
+                    }
+                  />
+                </div>
               ) : (
                 <div className="rounded-3xl border bg-background dark:bg-zinc-900 h-full flex flex-col justify-center items-center">
                   <UserCheck className="h-20 w-20 text-primary" />
