@@ -52,48 +52,48 @@
   /* Base colors - Clean, warm, trustworthy */
   --background: oklch(0.99 0.003 85.5);
   --foreground: oklch(0.21 0.015 85.5);
-  
+
   /* Card & Popover */
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.21 0.015 85.5);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.21 0.015 85.5);
-  
+
   /* Primary - Trust blue (professional, reliable) */
   --primary: oklch(0.48 0.18 255.5);
   --primary-foreground: oklch(0.98 0.01 85.5);
-  
+
   /* Secondary - Warm orange/amber (friendly, energetic) */
   --secondary: oklch(0.72 0.14 65.5);
   --secondary-foreground: oklch(0.21 0.015 85.5);
-  
+
   /* Muted - Soft gray-beige */
   --muted: oklch(0.96 0.008 85.5);
   --muted-foreground: oklch(0.52 0.02 85.5);
-  
+
   /* Accent - Sage green (reliable, natural) */
   --accent: oklch(0.68 0.12 152.5);
   --accent-foreground: oklch(0.21 0.015 85.5);
-  
+
   /* Destructive - Red (for warnings/errors) */
   --destructive: oklch(0.55 0.21 25.5);
   --destructive-foreground: oklch(0.98 0.01 85.5);
-  
+
   /* Borders & Inputs */
   --border: oklch(78.29% 0.00148 285.471);
   --input: oklch(0.89 0.015 85.5);
   --ring: oklch(0.48 0.18 255.5);
-  
+
   /* Chart colors */
   --chart-1: oklch(0.48 0.18 255.5);
   --chart-2: oklch(0.72 0.14 65.5);
   --chart-3: oklch(0.68 0.12 152.5);
   --chart-4: oklch(0.65 0.15 85.5);
   --chart-5: oklch(0.55 0.16 295.5);
-  
+
   /* Radius - Slightly rounded for modern feel edit campaign: afffa2f*/
   --radius: 0.1rem;
-  
+
   /* Sidebar specific */
   --sidebar: oklch(0.97 0.005 85.5);
   --sidebar-foreground: oklch(0.21 0.015 85.5);
@@ -158,13 +158,41 @@
 
 /* RESTORATIONS / OVERRITES TO UfI LIBRARY */
 @layer base {
-button:not([disabled]),
-[role="button"]:not([disabled]) {
-cursor: pointer;
-}
+  button:not([disabled]),
+  [role="button"]:not([disabled]) {
+    cursor: pointer;
+  }
 }
 
 .cl-avatarBox {
   width: 2rem;
   height: 2rem;
+}
+
+@layer utilities {
+  /* Custom scrollbar for better UX */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 9999px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+}
+
+/* Mobile breakpoint for small screens */
+@media (max-width: 480px) {
+  .xs\:hidden {
+    display: none;
+  }
 }

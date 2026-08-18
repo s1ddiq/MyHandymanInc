@@ -152,7 +152,7 @@ export default function SalesRepDashboard() {
 
   const handleSubmit = (
     leadId: number,
-    data: { notes: string; appointment?: Date },
+    data: { notes: string; appointment?: Date; job_details?: string },
   ) => {
     confirm({
       title: "Submit Lead",
@@ -163,6 +163,7 @@ export default function SalesRepDashboard() {
         await submitMutation.mutateAsync({
           id: leadId,
           notes: data.notes,
+          job_details: data.job_details,
           appointment: data.appointment?.toISOString(),
         });
         setSelectedLeadForView(null);
@@ -257,22 +258,76 @@ export default function SalesRepDashboard() {
   );
 
   return (
-    <div className="max-h-screen bg-muted/20 dark:bg-zinc-950 overflow-y-auto">
-      <div className="h-full mx-auto p-6">
-        <div className="grid xl:grid-cols-[370px_1fr] gap-6 h-full">
-          {/* SIDEBAR */}
-          <div className="rounded-3xl border bg-background dark:bg-zinc-900 overflow-hidden max-h-[calc(100vh-72px)] flex flex-col">
-            <div className="p-5 border-b">
+    <div className="flex h-full min-h-0 w-full overflow-hidden bg-muted/20 dark:bg-zinc-950">
+      <div className="flex min-h-0 w-full flex-col p-3 sm:p-4 lg:p-6">
+        {/* Dashboard header */}
+        <div className="mb-4 shrink-0 rounded-2xl border bg-background p-4 dark:bg-zinc-900 sm:rounded-3xl p-2">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="text-2xl font-bold sm:text-3xl">
+                  Sales Dashboard
+                </h1>
+
+                <Badge className="bg-blue-500">Sales Rep</Badge>
+              </div>
+
+              <p className="mt-1 text-sm text-muted-foreground sm:mt-2">
+                Manage active leads, schedule appointments, and submit completed
+                consultations.
+              </p>
+
+              <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+                <CalendarCheck className="h-4 w-4 text-green-600" />
+                <span>{bookedCount} booked</span>
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                className="flex-1 sm:flex-none"
+                onClick={() => {
+                  setSelectedLead(undefined);
+                  setIsDialogOpen(true);
+                }}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Create Lead
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                size="icon"
+              >
+                <RefreshCw
+                  className={cn("h-4 w-4", isRefreshing && "animate-spin")}
+                />
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Main workspace */}
+        <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[340px_minmax(0,1fr)]">
+          {/* LEAD LIST */}
+          <section className="flex min-h-0 flex-col overflow-hidden rounded-2xl border bg-background dark:bg-zinc-900 lg:rounded-3xl">
+            {/* Search */}
+            <div className="shrink-0 border-b p-3 sm:p-4">
               <div className="relative">
                 <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+
                 <Input
-                  className="pl-9 pr-10 rounded-xl"
+                  className="rounded-xl pl-9 pr-9"
                   placeholder="Search active leads..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
+
                 {search && (
                   <button
+                    type="button"
                     onClick={() => setSearch("")}
                     className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground"
                   >
@@ -282,75 +337,93 @@ export default function SalesRepDashboard() {
               </div>
             </div>
 
-            <div className="p-4 border-b">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <h2 className="font-semibold text-lg">Active Leads</h2>
-                  <Badge variant="secondary">{activeLeads.length}</Badge>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={handleRefresh}
-                  disabled={isRefreshing || isLoading}
-                >
-                  <RefreshCw
-                    className={cn(
-                      "h-4 w-4",
-                      (isRefreshing || isLoading) && "animate-spin",
-                    )}
-                  />
-                </Button>
+            {/* List header */}
+            <div className="flex shrink-0 items-center justify-between border-b px-4 py-3">
+              <div className="flex items-center gap-2">
+                <h2 className="font-semibold">Active Leads</h2>
+
+                <Badge variant="secondary">{activeLeads.length}</Badge>
               </div>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={handleRefresh}
+                disabled={isRefreshing || isLoading}
+              >
+                <RefreshCw
+                  className={cn(
+                    "h-4 w-4",
+                    (isRefreshing || isLoading) && "animate-spin",
+                  )}
+                />
+              </Button>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-3 pb-3">
+            {/* ONLY THE LIST SCROLLS */}
+            <div className="min-h-0 flex-1 overflow-y-auto p-3">
               {isLoading ? (
                 <LoadingSkeleton />
               ) : activeLeads.length === 0 ? (
                 <EmptyState />
               ) : (
                 activeLeads.map((lead) => (
-                  <div
+                  <button
                     key={lead.id}
+                    type="button"
                     onClick={() => setSelectedLeadForView(lead)}
                     className={cn(
-                      "rounded-2xl border p-4 my-3 cursor-pointer transition-all hover:shadow-lg hover:border-primary",
+                      "mb-3 w-full rounded-2xl border p-4 text-left transition-all",
+                      "hover:border-primary hover:shadow-md",
+                      selectedLeadForView?.id === lead.id &&
+                        "border-primary bg-primary/5 shadow-sm",
                       lead.appointment &&
                         "border-l-4 border-l-green-500 bg-green-500/5",
-                      selectedLeadForView?.id === lead.id &&
-                        "border-l border-primary bg-primary/5",
                     )}
                   >
-                    <div className="flex justify-between items-start">
+                    <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
-                        <h3 className="font-semibold truncate">{lead.name}</h3>
-                        <p className="text-xs text-muted-foreground truncate">
+                        <h3 className="truncate font-semibold">{lead.name}</h3>
+
+                        <p className="truncate text-xs text-muted-foreground">
                           {lead.service}
                         </p>
+
                         {lead.email && (
-                          <p className="text-xs text-muted-foreground truncate">
+                          <p className="mt-1 truncate text-xs text-muted-foreground">
                             {lead.email}
                           </p>
                         )}
                       </div>
-                      <div className="flex flex-col items-end gap-1 ml-2 flex-shrink-0">
+
+                      <div className="flex shrink-0 flex-col items-end gap-1">
                         {lead.appointment && (
-                          <Badge className="bg-green-600 hover:bg-green-600 text-white text-xs">
+                          <Badge className="bg-green-600 text-xs text-white hover:bg-green-600">
                             Booked
                           </Badge>
                         )}
+
                         {lead.status && lead.status !== "active" && (
                           <Badge
                             className={cn(
                               "text-xs",
-                              lead.status === "won" &&
-                                "bg-blue-600 hover:bg-blue-600 text-white",
-                              lead.status === "lost" &&
-                                "bg-red-600 hover:bg-red-600 text-white",
-                              lead.status === "contacted" &&
-                                "bg-yellow-600 hover:bg-yellow-600 text-white",
+                              lead.status === "Submitted" &&
+                                "bg-blue-600 text-white hover:bg-blue-600",
+                              lead.status === "Potential" &&
+                                "bg-yellow-500 text-white hover:bg-yellow-500",
+                              lead.status === "Contacted" &&
+                                "bg-orange-500 text-white hover:bg-orange-500",
+                              lead.status === "Qualified" &&
+                                "bg-purple-500 text-white hover:bg-purple-500",
+                              lead.status === "Proposal" &&
+                                "bg-indigo-500 text-white hover:bg-indigo-500",
+                              lead.status === "Negotiation" &&
+                                "bg-pink-500 text-white hover:bg-pink-500",
+                              lead.status === "Won" &&
+                                "bg-emerald-600 text-white hover:bg-emerald-600",
+                              lead.status === "Lost" &&
+                                "bg-red-500 text-white hover:bg-red-500",
                             )}
                           >
                             {lead.status}
@@ -360,163 +433,106 @@ export default function SalesRepDashboard() {
                     </div>
 
                     {lead.appointment && (
-                      <div className="flex items-center gap-2 mt-2 text-xs text-green-600">
-                        <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                        <span>Appointment Scheduled</span>
+                      <div className="mt-3 flex items-center gap-2 text-xs text-green-600">
+                        <div className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
+                        Appointment Scheduled
                       </div>
                     )}
 
-                    <div className="flex items-center justify-between mt-2">
-                      <p className="text-xs text-muted-foreground">
+                    <div className="mt-3 flex justify-between gap-2 text-xs text-muted-foreground">
+                      <span>
                         {formatDistanceToNow(new Date(lead.created_at))} ago
-                      </p>
-                      {lead.updated_at &&
-                        lead.updated_at !== lead.created_at && (
-                          <p className="text-xs text-muted-foreground">
-                            Updated{" "}
-                            {formatDistanceToNow(new Date(lead.updated_at))} ago
-                          </p>
-                        )}
+                      </span>
+
+                      {lead.updated_at !== lead.created_at && (
+                        <span>
+                          Updated{" "}
+                          {formatDistanceToNow(new Date(lead.updated_at))} ago
+                        </span>
+                      )}
                     </div>
-                  </div>
+                  </button>
                 ))
               )}
             </div>
 
-            {/* Footer Stats */}
-            <div className="p-3 border-t bg-muted/10">
+            {/* Footer */}
+            <div className="shrink-0 border-t bg-muted/10 p-3">
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>Total: {allLeads?.length ?? 0}</span>
                 <span>Booked: {bookedCount}</span>
                 <span>Active: {activeLeads.length}</span>
               </div>
             </div>
-          </div>
+          </section>
 
-          {/* DETAILS PANEL */}
-          <div className="flex flex-col h-full min-h-0">
-            {/* Header */}
-            <div
-              className={cn(
-                "rounded-3xl border bg-background dark:bg-zinc-900 pb-3 flex-shrink-0",
-                selectedLeadForView ? "pb-2" : "",
-              )}
-            >
-              <div
-                className={cn(
-                  "flex flex-col lg:flex-row justify-between gap-4 px-6 pt-6",
-                )}
-              >
-                <div className="min-w-0">
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <h1
-                      className={cn(
-                        "font-bold mt-1 truncate",
-                        selectedLeadForView ? "text-2xl" : "text-3xl",
-                      )}
-                    >
-                      Sales Dashboard
-                    </h1>
-                    <Badge className="bg-blue-500 text-xs align-middle flex-shrink-0">
-                      Sales Rep
-                    </Badge>
-                  </div>
-                  {!selectedLeadForView && (
-                    <p className="text-muted-foreground mt-2">
-                      Manage active leads, schedule appointments, and submit
-                      completed consultations.
+          {/* DETAILS */}
+          <section className="flex min-h-0 flex-col overflow-hidden rounded-2xl border bg-background dark:bg-zinc-900 lg:rounded-3xl">
+            {/* Details header */}
+            <div className="shrink-0 border-b p-4 sm:p-6">
+              {selectedLeadForView ? (
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <h2 className="truncate text-xl font-bold sm:text-2xl">
+                      {selectedLeadForView.name}
+                    </h2>
+
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {selectedLeadForView.service}
                     </p>
-                  )}
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-2 flex-shrink-0">
-                  {/* Create Lead Button */}
-                  <Button
-                    size="lg"
-                    onClick={() => {
-                      setSelectedLead(undefined);
-                      setIsDialogOpen(true);
-                    }}
-                    className="min-w-[160px]"
-                  >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Create Lead
-                  </Button>
-
-                  {/* Close Current Lead Button - only shows when a lead is selected */}
-                  {selectedLeadForView && (
-                    <Button
-                      onClick={handleCloseCurrentLead}
-                      variant="destructive"
-                      size="lg"
-                      className="min-w-[160px]"
-                    >
-                      <Trash className="mr-2 h-4 w-4" />
-                      Close Current Lead
-                    </Button>
-                  )}
-                </div>
-              </div>
-
-              {/* Quick stats when lead is selected */}
-              {selectedLeadForView && (
-                <div className="px-6 pt-2 flex flex-wrap gap-4 text-sm text-muted-foreground border-t mt-3 pt-3">
-                  <div className="flex items-center gap-2">
-                    <CalendarCheck className="h-4 w-4" />
-                    <span>
-                      Created:{" "}
-                      {formatDistanceToNow(
-                        new Date(selectedLeadForView.created_at),
-                      )}{" "}
-                      ago
-                    </span>
                   </div>
-                  {selectedLeadForView.appointment && (
-                    <div className="flex items-center gap-2 text-green-600">
-                      <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                      <span>
-                        Appointment:{" "}
-                        {new Date(
-                          selectedLeadForView.appointment,
-                        ).toLocaleDateString()}
-                      </span>
-                    </div>
-                  )}
-                  {selectedLeadForView.status &&
-                    selectedLeadForView.status !== "active" && (
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline">
-                          Status: {selectedLeadForView.status}
-                        </Badge>
-                      </div>
-                    )}
+
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleCloseCurrentLead}
+                    className="shrink-0"
+                  >
+                    <X className="mr-2 h-4 w-4" />
+                    Close
+                  </Button>
+                </div>
+              ) : (
+                <div>
+                  <h2 className="text-xl font-bold sm:text-2xl">
+                    Lead Details
+                  </h2>
+
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Select a lead to view its details.
+                  </p>
                 </div>
               )}
             </div>
 
-            {/* Lead Details or Empty State */}
-            <div className="flex-1 mt-6 min-h-0">
+            {/* IMPORTANT:
+              this is the ONLY scroll container for LeadRow
+          */}
+            <div className="min-h-0 flex-1 overflow-y-auto">
               {selectedLeadForView ? (
-                <div className="rounded-3xl border bg-background dark:bg-zinc-900 h-full overflow-y-auto">
-                  <LeadRow
-                    lead={selectedLeadForView}
-                    forSalesRep={true}
-                    onEdit={() => handleEdit(selectedLeadForView)}
-                    onDelete={() => handleDelete(selectedLeadForView)}
-                    onSubmit={(data) =>
-                      handleSubmit(selectedLeadForView.id, data)
-                    }
-                  />
-                </div>
+                <LeadRow
+                  lead={selectedLeadForView}
+                  forSalesRep
+                  onEdit={() => handleEdit(selectedLeadForView)}
+                  onDelete={() => handleDelete(selectedLeadForView)}
+                  onSubmit={(data) =>
+                    handleSubmit(selectedLeadForView.id, data)
+                  }
+                />
               ) : (
-                <div className="rounded-3xl border bg-background dark:bg-zinc-900 h-full flex flex-col justify-center items-center p-8">
-                  <UserCheck className="h-20 w-20 text-primary mb-4" />
-                  <h2 className="text-3xl font-bold mt-6">No Lead Selected</h2>
-                  <p className="text-muted-foreground mt-2 text-center max-w-md">
+                <div className="flex min-h-full flex-col items-center justify-center p-8 text-center">
+                  <UserCheck className="h-16 w-16 text-primary sm:h-20 sm:w-20" />
+
+                  <h2 className="mt-6 text-2xl font-bold sm:text-3xl">
+                    No Lead Selected
+                  </h2>
+
+                  <p className="mt-2 max-w-md text-sm text-muted-foreground">
                     Select a customer from the left to view details, schedule
                     appointments, and manage their lead.
                   </p>
-                  <div className="flex gap-4 mt-8">
+
+                  <div className="mt-6 flex flex-col gap-2 sm:flex-row">
                     <Button
                       variant="outline"
                       onClick={() => {
@@ -527,6 +543,7 @@ export default function SalesRepDashboard() {
                       <Plus className="mr-2 h-4 w-4" />
                       Create New Lead
                     </Button>
+
                     <Button
                       variant="ghost"
                       onClick={handleRefresh}
@@ -544,11 +561,10 @@ export default function SalesRepDashboard() {
                 </div>
               )}
             </div>
-          </div>
+          </section>
         </div>
       </div>
 
-      {/* Lead Form Dialog */}
       <LeadFormDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}

@@ -103,7 +103,14 @@ function inferFormDataFromJson(jsonData: any): Partial<CreateLeadInput> {
     inferredData.customer_timeframe = jsonData.jobDetails.customerTimeframe;
   }
 
-  // Map description from job details
+  // Map job details
+  if (jsonData.jobDetails?.description) {
+    inferredData.job_details = jsonData.jobDetails.description;
+  } else if (jsonData.jobDetails?.service) {
+    inferredData.job_details = `${jsonData.jobDetails.service} - ${jsonData.jobDetails.location || "Location TBD"}`;
+  }
+
+  // Map description
   if (jsonData.jobDetails?.customerNotes) {
     inferredData.description = jsonData.jobDetails.customerNotes;
   } else if (jsonData.jobDetails?.service) {
@@ -117,7 +124,6 @@ function inferFormDataFromJson(jsonData: any): Partial<CreateLeadInput> {
 
   // Map appointment if exists with EST timezone handling
   if (jsonData.appointment?.date || jsonData.appointment?.time) {
-    // Try to construct appointment date from various formats
     let appointmentDate = null;
 
     if (jsonData.appointment.date) {
@@ -128,7 +134,6 @@ function inferFormDataFromJson(jsonData: any): Partial<CreateLeadInput> {
       appointmentDate = new Date(jsonData.appointment.scheduledDate);
     }
 
-    // If we have a valid date, use it
     if (appointmentDate && !isNaN(appointmentDate.getTime())) {
       inferredData.appointment = appointmentDate.toISOString();
     }
@@ -206,34 +211,6 @@ export function LeadFormDialog({
     }),
   );
 
-  const handlePasteJson = () => {
-    if (!jsonText.trim()) {
-      toast.error("Please paste some JSON data");
-      return false;
-    }
-
-    try {
-      const jsonData = JSON.parse(jsonText);
-      const inferredData = inferFormDataFromJson(jsonData);
-
-      // Update form fields with inferred data
-      Object.entries(inferredData).forEach(([key, value]) => {
-        if (value !== undefined) {
-          form.setValue(key as keyof CreateLeadInput, value);
-        }
-      });
-
-      toast.success("Form fields populated from pasted JSON!");
-      setShowJsonInput(false);
-      setJsonText("");
-      return true;
-    } catch (error) {
-      console.error("Error parsing JSON:", error);
-      toast.error("Invalid JSON format. Please check and try again.");
-      return false;
-    }
-  };
-
   // Auto-create lead when JSON is pasted
   const handleJsonPaste = async (
     e: React.ClipboardEvent<HTMLTextAreaElement>,
@@ -241,19 +218,16 @@ export function LeadFormDialog({
     const pastedText = e.clipboardData.getData("text");
     setJsonText(pastedText);
 
-    // Don't auto-submit if we're already processing
     if (isProcessingRef.current) return;
 
     isProcessingRef.current = true;
 
     try {
-      // Small delay to ensure state updates
       await new Promise((resolve) => setTimeout(resolve, 50));
 
       const jsonData = JSON.parse(pastedText);
       const inferredData = inferFormDataFromJson(jsonData);
 
-      // Update form fields
       Object.entries(inferredData).forEach(([key, value]) => {
         if (value !== undefined) {
           form.setValue(key as keyof CreateLeadInput, value);
@@ -262,10 +236,9 @@ export function LeadFormDialog({
 
       toast.success("Form populated from pasted JSON!");
 
-      // Auto-submit the form after populating
       setTimeout(() => {
         form.handleSubmit(async (data) => {
-          if (isEditing) {
+          if (isEditing && lead) {
             await updateMutation.mutateAsync({
               id: lead.id,
               data: data,
@@ -288,7 +261,7 @@ export function LeadFormDialog({
 
   // Manual submit handler
   const onSubmit = form.handleSubmit(async (data) => {
-    if (isEditing) {
+    if (isEditing && lead) {
       await updateMutation.mutateAsync({
         id: lead.id,
         data: data,
@@ -318,47 +291,35 @@ export function LeadFormDialog({
           </Button>
         </DialogHeader>
 
-        <div className="mb-6 rounded-lg bg-muted/30">
-          <div className="flex items-center justify-between mb-3">
-            <Label className="text-sm font-semibold">
-              Paste JSON Data (auto-creates lead)
-            </Label>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setShowJsonInput(false);
-                setJsonText("");
-              }}
-              className="h-6 w-6 p-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+        {showJsonInput && (
+          <div className="rounded-lg bg-muted/30 p-4">
+            <div className="flex items-center justify-between mb-3">
+              <Label className="text-sm font-semibold">
+                Paste JSON Data (auto-creates lead)
+              </Label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setShowJsonInput(false);
+                  setJsonText("");
+                }}
+                className="h-6 w-6 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <Textarea
+              value={jsonText}
+              onPaste={handleJsonPaste}
+              onChange={(e) => setJsonText(e.target.value)}
+              placeholder="Paste your JSON here."
+              rows={8}
+              className="font-mono text-sm"
+            />
           </div>
-          <Textarea
-            value={jsonText}
-            onPaste={handleJsonPaste}
-            onChange={(e) => setJsonText(e.target.value)}
-            placeholder="Paste your JSON here."
-            rows={8}
-            className="font-mono text-sm"
-          />
-          {/* <div className="flex justify-end mt-3 gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                setShowJsonInput(false);
-                setJsonText("");
-              }}
-            >
-              Cancel
-            </Button> */}
-          {/* <Button type="button" onClick={handlePasteJson}>
-              Parse & Fill Form (Manual)
-            </Button> */}
-        </div>
+        )}
 
         <form onSubmit={onSubmit} className="space-y-6">
           {/* Basic Information Section */}
@@ -539,7 +500,11 @@ export function LeadFormDialog({
               Cancel
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isEditing ? "Save Changes" : "Create Lead"}
+              {isPending
+                ? "Saving..."
+                : isEditing
+                  ? "Save Changes"
+                  : "Create Lead"}
             </Button>
           </div>
         </form>

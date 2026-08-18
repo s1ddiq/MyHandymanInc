@@ -2,26 +2,13 @@
 import { Lead } from "@/lib/validators/lead";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Mail, Pencil, Phone } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 import { formatDistanceToNow } from "date-fns";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
@@ -29,7 +16,11 @@ interface LeadRowProps {
   lead: Lead;
   onEdit?: () => void;
   onDelete?: () => void;
-  onSubmit?: (data: { notes: string; appointment: Date }) => void;
+  onSubmit?: (data: {
+    notes: string;
+    appointment?: Date;
+    job_details?: string;
+  }) => void;
   forSalesRep?: boolean;
 }
 
@@ -42,6 +33,7 @@ const LeadRow = ({
 }: LeadRowProps) => {
   const [newLeadNotes, setNewLeadNotes] = useState(lead.notes || "");
   const [selectedAppointment, setSelectedAppointment] = useState("");
+  const [newJobDetails, setNewJobDetails] = useState(lead.job_details || "");
 
   if (forSalesRep) {
     return (
@@ -53,9 +45,13 @@ const LeadRow = ({
               <h2 className="text-lg font-semibold">{lead.name}</h2>
 
               <p className="text-sm text-muted-foreground">
-                Received {formatDistanceToNow(lead.created_at)} ago
+                Received {formatDistanceToNow(new Date(lead.created_at))} ago
               </p>
             </div>
+
+            {lead.appointment && (
+              <Badge className="bg-green-600 text-white">Booked</Badge>
+            )}
           </div>
 
           {/* Contact */}
@@ -76,7 +72,6 @@ const LeadRow = ({
           {/* Job Details */}
           <div className="flex items-center justify-between">
             <h3 className="font-medium">Job Details</h3>
-
             <span className="text-xs text-muted-foreground">ID #{lead.id}</span>
           </div>
 
@@ -90,77 +85,96 @@ const LeadRow = ({
             <Info label="Status" value={lead.status} />
           </div>
 
+          {/* Job Details Input */}
+          <div className="space-y-2">
+            <Label htmlFor="job_details">Job Details</Label>
+            <Textarea
+              id="job_details"
+              value={newJobDetails}
+              onChange={(e) => setNewJobDetails(e.target.value)}
+              placeholder="Enter detailed job description..."
+              rows={4}
+            />
+          </div>
+
           {lead.customer_notes && (
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1">
-                Notes
+                Customer Notes
               </p>
 
               <p className="text-sm leading-relaxed">{lead.customer_notes}</p>
             </div>
           )}
+
           <Separator />
 
           {/* Team Notes */}
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Team Notes
-              </p>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const newNote = newLeadNotes
-                      ? `${newLeadNotes}\nNo answer - ${new Date().toLocaleString()}`
-                      : `No answer - ${new Date().toLocaleString()}`;
-                    setNewLeadNotes(newNote);
-                  }}
-                >
-                  No Answer
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const newNote = newLeadNotes
-                      ? `${newLeadNotes}\nLeft voicemail - ${new Date().toLocaleString()}`
-                      : `Left voicemail - ${new Date().toLocaleString()}`;
-                    setNewLeadNotes(newNote);
-                  }}
-                >
-                  Left Voicemail
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const newNote = newLeadNotes
-                      ? `${newLeadNotes}\nSent text - ${new Date().toLocaleString()}`
-                      : `Sent text - ${new Date().toLocaleString()}`;
-                    setNewLeadNotes(newNote);
-                  }}
-                >
-                  Sent Text
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const newNote = newLeadNotes
-                      ? `${newLeadNotes}\nCalled and spoke with customer - ${new Date().toLocaleString()}`
-                      : `Called and spoke with customer - ${new Date().toLocaleString()}`;
-                    setNewLeadNotes(newNote);
-                  }}
-                >
-                  Spoke with Customer
-                </Button>
-              </div>
+          <div className="space-y-3">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Team Notes
+            </p>
+
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const timestamp = new Date().toLocaleString();
+                  const newNote = newLeadNotes
+                    ? `${newLeadNotes}\nNo answer - ${timestamp}`
+                    : `No answer - ${timestamp}`;
+                  setNewLeadNotes(newNote);
+                }}
+              >
+                No Answer
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const timestamp = new Date().toLocaleString();
+                  const newNote = newLeadNotes
+                    ? `${newLeadNotes}\nLeft voicemail - ${timestamp}`
+                    : `Left voicemail - ${timestamp}`;
+                  setNewLeadNotes(newNote);
+                }}
+              >
+                Left Voicemail
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const timestamp = new Date().toLocaleString();
+                  const newNote = newLeadNotes
+                    ? `${newLeadNotes}\nSent text - ${timestamp}`
+                    : `Sent text - ${timestamp}`;
+                  setNewLeadNotes(newNote);
+                }}
+              >
+                Sent Text
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const timestamp = new Date().toLocaleString();
+                  const newNote = newLeadNotes
+                    ? `${newLeadNotes}\nCalled and spoke with customer - ${timestamp}`
+                    : `Called and spoke with customer - ${timestamp}`;
+                  setNewLeadNotes(newNote);
+                }}
+              >
+                Spoke with Customer
+              </Button>
             </div>
 
             <Textarea
@@ -168,9 +182,11 @@ const LeadRow = ({
               value={newLeadNotes}
               onChange={(e) => setNewLeadNotes(e.target.value)}
               placeholder="Add team notes here..."
+              rows={6}
             />
           </div>
-          {/* Appointment Selector using datetime-local */}
+
+          {/* Appointment Selector */}
           <div className="space-y-2">
             <Label htmlFor="appointment">Schedule Appointment</Label>
             <Input
@@ -192,7 +208,10 @@ const LeadRow = ({
               if (newLeadNotes && onSubmit) {
                 onSubmit({
                   notes: newLeadNotes,
-                  appointment: new Date(selectedAppointment) ?? undefined,
+                  appointment: selectedAppointment
+                    ? new Date(selectedAppointment)
+                    : undefined,
+                  job_details: newJobDetails,
                 });
               }
             }}
@@ -204,6 +223,7 @@ const LeadRow = ({
     );
   }
 
+  // Admin view
   return (
     <Card className="mb-4">
       <CardContent className="p-5 space-y-5">
@@ -213,9 +233,13 @@ const LeadRow = ({
             <h2 className="text-lg font-semibold">{lead.name}</h2>
 
             <p className="text-sm text-muted-foreground">
-              Received {formatDistanceToNow(lead.created_at)} ago
+              Received {formatDistanceToNow(new Date(lead.created_at))} ago
             </p>
           </div>
+
+          <Badge variant={lead.appointment ? "default" : "secondary"}>
+            {lead.appointment ? "Booked" : "Pending"}
+          </Badge>
         </div>
 
         {/* Contact */}
@@ -236,7 +260,6 @@ const LeadRow = ({
         {/* Job Details */}
         <div className="flex items-center justify-between">
           <h3 className="font-medium">Job Details</h3>
-
           <span className="text-xs text-muted-foreground">ID #{lead.id}</span>
         </div>
 
@@ -248,54 +271,62 @@ const LeadRow = ({
           <Info label="Location" value={lead.location} />
 
           <Info label="Status" value={lead.status} />
+
           <Info
             label="Appointment"
             value={
               lead.appointment
                 ? (() => {
                     const d = new Date(lead.appointment);
-                    const day = d.getDate();
-                    const suffix =
-                      day > 3 && day < 21
-                        ? "th"
-                        : ["st", "nd", "rd"][(day % 10) - 1] || "th";
-                    const dateStr = d
-                      .toLocaleDateString("en-GB", {
+                    return (
+                      d.toLocaleString("en-US", {
                         weekday: "long",
                         month: "long",
+                        day: "numeric",
                         year: "numeric",
+                        hour: "numeric",
+                        minute: "2-digit",
                         timeZone: "America/New_York",
-                      })
-                      .replace(/\d+/, day + suffix);
-                    const timeStr = d.toLocaleTimeString("en-US", {
-                      hour: "numeric",
-                      minute: "2-digit",
-                      timeZone: "America/New_York",
-                    });
-                    return `${dateStr} at ${timeStr} EST`;
+                      }) + " EST"
+                    );
                   })()
                 : "No appointment is booked."
             }
           />
         </div>
 
+        {/* Job Details Display */}
+        {lead.job_details && (
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1">
+              Job Details
+            </p>
+
+            <p className="text-sm leading-relaxed">{lead.job_details}</p>
+          </div>
+        )}
+
         {lead.customer_notes && (
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1">
-              Notes
+              Customer Notes
             </p>
 
             <p className="text-sm leading-relaxed">{lead.customer_notes}</p>
           </div>
         )}
+
         <Separator />
 
+        {/* Team Notes */}
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1">
             Team Notes
           </p>
 
-          <p className="text-lg leading-relaxed">{lead.notes}</p>
+          <p className="text-lg leading-relaxed">
+            {lead.notes || "No team notes yet."}
+          </p>
         </div>
       </CardContent>
 
@@ -308,6 +339,7 @@ const LeadRow = ({
         >
           Delete
         </Button>
+
         <Button size="sm" className="ml-auto" onClick={onEdit}>
           <Pencil className="mr-2 h-4 w-4" />
           Edit

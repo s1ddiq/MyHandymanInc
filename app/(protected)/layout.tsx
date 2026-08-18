@@ -1,29 +1,41 @@
 import ProtectedNavbar from "@/features/dashboard/components/ProtectedNavbar";
+import TeamChat from "@/features/dashboard/components/TeamChat";
 import { checkRole } from "@/lib/utils/roles";
 import React from "react";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  if ((await checkRole("admin")) || (await checkRole("sales_rep"))) {
+  const allowed = (await checkRole("admin")) || (await checkRole("sales_rep"));
+
+  if (!allowed) {
     return (
-      <>
-        <ProtectedNavbar />
-        <main className="flex-1">{children}</main>
-      </>
-    );
-  } else {
-    return (
-      <div className="p-4 h-screen w-full flex flex-col items-center justify-center bg-gray-800">
-        <h1 className="text-3xl mb-4 text-center font-semibold text-white">
+      <div className="flex min-h-screen w-full flex-col items-center justify-center bg-gray-800 p-4">
+        <h1 className="mb-4 text-center text-3xl font-semibold text-white">
           Access Denied
         </h1>
+
         <p className="text-center text-gray-300">
           You do not have permission to view this page.
         </p>
       </div>
     );
   }
+
+  return (
+    <SidebarProvider className="w-screen md:h-screen h-dvh">
+      <ProtectedNavbar>
+        <div className="flex h-full">
+          <div className="flex-1 overflow-hidden">{children}</div>
+
+          <div className="w-[360px] shrink-0 border-l">
+            <TeamChat />
+          </div>
+        </div>
+      </ProtectedNavbar>
+    </SidebarProvider>
+  );
 }

@@ -1,12 +1,34 @@
 "use client";
 
 import Link from "next/link";
-import React from "react";
 import Image from "next/image";
 import { UserButton } from "@clerk/nextjs";
 import { useTheme } from "@wrksz/themes/client";
-import { Button } from "@/components/ui/button";
-import { Sun, Moon, Monitor } from "lucide-react";
+import {
+  Sun,
+  Moon,
+  Monitor,
+  LayoutDashboard,
+  Users,
+  Settings,
+  MessageSquare,
+} from "lucide-react";
+
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,68 +36,129 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const ProtectedNavbar = () => {
+const items = [
+  {
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    title: "Leads",
+    url: "/dashboard/leads",
+    icon: Users,
+  },
+];
+
+export default function ProtectedNavbar({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { theme, setTheme } = useTheme();
 
   return (
-    <header className="bg-primary py-2 w-full sticky top-0 z-50 flex-center">
-      <div className="flex items-center justify-between gap-4 w-full px-4">
-        {/* Logo - Left */}
-        <div className="shrink-0">
-          <Link
-            href="/dashboard"
-            className="text-base sm:text-lg md:text-xl font-bold text-primary-foreground hover:opacity-80 transition-opacity flex gap-3 items-center p-3"
-          >
-            <Image
-              src="/favicon.ico"
-              alt="Company Logo"
-              width={32}
-              height={32}
-            />
-            <p className="font-bold">MyHandymanInc</p>
-          </Link>
-        </div>
+    <SidebarProvider className="overflow-hidden!">
+      <Sidebar collapsible="icon">
+        <SidebarHeader>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild size="lg">
+                <Link href="/dashboard">
+                  <Image
+                    src="/favicon.ico"
+                    alt="MyHandymanInc"
+                    width={32}
+                    height={32}
+                    className="rounded-md"
+                  />
 
-        {/* User Button & Theme Switcher - Right */}
-        <div className="flex gap-2 sm:gap-3 shrink-0 items-center">
-          {/* Theme Switcher Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-primary-foreground hover:bg-primary-foreground/10"
-              >
-                {theme === "dark" ? (
-                  <Moon className="h-5 w-5" />
-                ) : theme === "light" ? (
-                  <Sun className="h-5 w-5" />
-                ) : (
-                  <Monitor className="h-5 w-5" />
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setTheme("light")}>
-                <Sun className="mr-2 h-4 w-4" />
-                <span>Light</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("dark")}>
-                <Moon className="mr-2 h-4 w-4" />
-                <span>Dark</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("system")}>
-                <Monitor className="mr-2 h-4 w-4" />
-                <span>System</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  <span className="font-bold">MyHandymanInc</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarHeader>
 
-          <UserButton />
-        </div>
+        {/* <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild title={item.title}>
+                      <Link href={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild title="Team Chat">
+                    <Link href="/dashboard">
+                      <MessageSquare />
+                      <span>Team Chat</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent> */}
+
+        <SidebarFooter>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <SidebarMenuButton title="Theme">
+                    {theme === "dark" ? (
+                      <Moon />
+                    ) : theme === "light" ? (
+                      <Sun />
+                    ) : (
+                      <Monitor />
+                    )}
+
+                    <span>Theme</span>
+                  </SidebarMenuButton>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent side="right" align="end">
+                  <DropdownMenuItem onClick={() => setTheme("light")}>
+                    <Sun className="mr-2 h-4 w-4" />
+                    Light
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem onClick={() => setTheme("dark")}>
+                    <Moon className="mr-2 h-4 w-4" />
+                    Dark
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem onClick={() => setTheme("system")}>
+                    <Monitor className="mr-2 h-4 w-4" />
+                    System
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </SidebarMenuItem>
+
+            <SidebarMenuItem>
+              <div className="flex items-center gap-2 px-2 py-2">
+                <UserButton />
+                <span className="text-sm">Account</span>
+              </div>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+      </Sidebar>
+
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden!">
+        <main className="min-h-0 flex-1 overflow-hidden!">{children}</main>
       </div>
-    </header>
+    </SidebarProvider>
   );
-};
-
-export default ProtectedNavbar;
+}
