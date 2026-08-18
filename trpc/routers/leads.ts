@@ -47,13 +47,14 @@ export const leadsRouter = createTRPCRouter({
       }
     }),
 
-  // New submit procedure for sales reps
+  // Updated submit procedure to include job_details
   submit: salesRepProcedure
     .input(
       z.object({
         id: z.number(),
         notes: z.string().optional(),
         appointment: z.string().optional(),
+        job_details: z.string().optional(), // ADD THIS
       }),
     )
     .mutation(async ({ input }) => {
@@ -63,6 +64,7 @@ export const leadsRouter = createTRPCRouter({
           .set({
             notes: input.notes,
             appointment: input.appointment,
+            job_details: input.job_details, // ADD THIS
             status: "Submitted",
           })
           .where(eq(leads.id, input.id));
