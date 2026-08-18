@@ -1,6 +1,12 @@
 "use client";
 
-import { Send, Trash2, Image as ImageIcon, X } from "lucide-react";
+import {
+  Send,
+  Trash2,
+  Image as ImageIcon,
+  X,
+  MessageSquare,
+} from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 import { useState, useRef, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -18,6 +24,7 @@ export default function TeamChat() {
     { fileName: string; filePath: string; fileType: string; fileSize: number }[]
   >([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const prevMessagesLengthRef = useRef(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -32,13 +39,13 @@ export default function TeamChat() {
     refetchInterval: 2000,
     refetchIntervalInBackground: true,
   });
+
   const sendMessageMutation = useMutation(
     trpc.teamChat.sendMessage.mutationOptions({
       onSuccess: () => {
         setMessage("");
         setAttachments([]);
         refetch();
-        // Keep focus on input after sending with a small delay
         setTimeout(() => {
           inputRef.current?.focus();
         }, 50);
@@ -69,26 +76,22 @@ export default function TeamChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Request notification permission on mount
   useEffect(() => {
     if ("Notification" in window && Notification.permission === "default") {
       Notification.requestPermission();
     }
   }, []);
 
-  // Auto-scroll to bottom when messages change
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
-  // Auto-scroll to bottom when loading finishes
   useEffect(() => {
     if (!isLoading) {
       scrollToBottom();
     }
   }, [isLoading]);
 
-  // Check for new messages and send notification
   useEffect(() => {
     const prevLength = prevMessagesLengthRef.current;
 
@@ -127,7 +130,6 @@ export default function TeamChat() {
     prevMessagesLengthRef.current = messages.length;
   }, [messages, user?.id]);
 
-  // Upload files to Supabase Storage
   const uploadFiles = async (files: File[]) => {
     setIsUploading(true);
 
@@ -161,7 +163,6 @@ export default function TeamChat() {
     }
   };
 
-  // Global paste handler - works anywhere in the document
   useEffect(() => {
     const handleGlobalPaste = (e: ClipboardEvent) => {
       const items = e.clipboardData?.items;
@@ -189,9 +190,8 @@ export default function TeamChat() {
     return () => {
       document.removeEventListener("paste", handleGlobalPaste);
     };
-  }, []); // Empty dependency array - uploadFiles is stable enough
+  }, []);
 
-  // Handle file input change
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
 
@@ -219,7 +219,6 @@ export default function TeamChat() {
       attachments: attachments.length > 0 ? attachments : undefined,
     });
 
-    // Focus input immediately after sending
     setTimeout(() => {
       inputRef.current?.focus();
     }, 0);
@@ -250,19 +249,31 @@ export default function TeamChat() {
     setAttachments((prev) => prev.filter((_, i) => i !== index));
   };
 
-  return (
-    <aside className="flex h-full w-[360px] shrink-0 flex-col border-l bg-white dark:bg-zinc-900">
+  const chatContent = (
+    <>
       {/* Header */}
-      <div className="shrink-0 border-b px-4 py-4">
-        <h2 className="font-semibold text-gray-900 dark:text-white">
-          Team Chat
-        </h2>
+      <div className="shrink-0 border-b px-4 py-3 md:py-4 flex items-center justify-between">
+        <div>
+          <h2 className="font-semibold text-gray-900 dark:text-white">
+            Team Chat
+          </h2>
 
-        <p className="text-sm text-gray-500">Admin, Sales & Development Team</p>
+          <p className="text-sm text-gray-500">
+            Admin, Sales & Development Team
+          </p>
+        </div>
+
+        {/* Close button for mobile */}
+        <button
+          onClick={() => setIsMobileChatOpen(false)}
+          className="md:hidden flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground hover:bg-muted/80"
+        >
+          <X size={16} />
+        </button>
       </div>
 
       {/* Messages */}
-      <div className="min-h-0 flex-1 overflow-y-auto p-4">
+      <div className="min-h-0 flex-1 overflow-y-auto p-3 md:p-4">
         {isLoading ? (
           <div className="space-y-4">
             {[...Array(5)].map((_, index) => (
@@ -303,7 +314,6 @@ export default function TeamChat() {
                       isMine ? "flex-row-reverse" : ""
                     }`}
                   >
-                    {/* Avatar */}
                     {msg.sender?.imageUrl ? (
                       <img
                         src={msg.sender.imageUrl}
@@ -317,7 +327,6 @@ export default function TeamChat() {
                     )}
 
                     <div className="relative min-w-0 flex-1">
-                      {/* Name */}
                       {!isMine && (
                         <p className="mb-1 px-1 text-xs font-semibold text-muted-foreground">
                           {msg.sender?.fullName ??
@@ -326,7 +335,6 @@ export default function TeamChat() {
                         </p>
                       )}
 
-                      {/* Message */}
                       <div
                         className={`inline-block max-w-full rounded-2xl px-3 py-2 ${
                           isMine
@@ -340,7 +348,6 @@ export default function TeamChat() {
                           </p>
                         )}
 
-                        {/* Attachments */}
                         {msg.attachments && msg.attachments.length > 0 && (
                           <div className="mt-2 space-y-2">
                             {msg.attachments.map(
@@ -371,7 +378,6 @@ export default function TeamChat() {
                         </p>
                       </div>
 
-                      {/* Delete button */}
                       <button
                         onClick={() => handleDeleteMessage(msg)}
                         className={`absolute -top-2 ${
@@ -386,7 +392,6 @@ export default function TeamChat() {
                 </div>
               );
             })}
-            {/* Scroll anchor */}
             <div ref={messagesEndRef} />
           </div>
         )}
@@ -454,7 +459,6 @@ export default function TeamChat() {
           </button>
         </div>
 
-        {/* Hidden file input */}
         <input
           ref={fileInputRef}
           type="file"
@@ -466,6 +470,33 @@ export default function TeamChat() {
       </div>
 
       <ConfirmationDialog />
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop chat - always visible */}
+      <aside className="hidden h-full w-[360px] shrink-0 flex-col border-l bg-white dark:bg-zinc-900 md:flex">
+        {chatContent}
+      </aside>
+
+      {/* Mobile floating button */}
+      <button
+        onClick={() => setIsMobileChatOpen(true)}
+        className="fixed bottom-4 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg transition-all hover:bg-blue-700 md:hidden"
+        aria-label="Open team chat"
+      >
+        <MessageSquare size={24} />
+      </button>
+
+      {/* Mobile bottom sheet */}
+      {isMobileChatOpen && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 md:hidden">
+          <div className="flex h-[80vh] w-full flex-col rounded-t-3xl bg-white dark:bg-zinc-900">
+            {chatContent}
+          </div>
+        </div>
+      )}
+    </>
   );
 }

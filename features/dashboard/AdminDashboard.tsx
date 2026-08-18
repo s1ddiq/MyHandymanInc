@@ -450,7 +450,7 @@ export default function AdminDashboard() {
             <div className="shrink-0 rounded-2xl border bg-background p-4 dark:bg-zinc-900 sm:p-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2 ">
                     <h1 className="text-2xl font-bold sm:text-3xl">
                       Admin Dashboard
                     </h1>
@@ -458,7 +458,7 @@ export default function AdminDashboard() {
                     <Badge className="bg-red-500">Admin</Badge>
                   </div>
 
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="mt-1 text-sm text-muted-foreground md:block hidden">
                     Manage customers, appointments, and leads.
                   </p>
 

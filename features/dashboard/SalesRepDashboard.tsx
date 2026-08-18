@@ -272,7 +272,7 @@ export default function SalesRepDashboard() {
                 <Badge className="bg-blue-500">Sales Rep</Badge>
               </div>
 
-              <p className="mt-1 text-sm text-muted-foreground sm:mt-2">
+              <p className="mt-1 text-sm text-muted-foreground sm:mt-2 md:block hidden">
                 Manage active leads, schedule appointments, and submit completed
                 consultations.
               </p>

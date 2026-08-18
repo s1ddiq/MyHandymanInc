@@ -29,11 +29,11 @@ export default async function AdminLayout({
     <SidebarProvider className="w-screen md:h-screen h-dvh">
       <ProtectedNavbar>
         <div className="flex h-full">
-          <div className="flex-1 overflow-hidden">{children}</div>
+          {/* Main content area */}
+          <div className="min-h-0 flex-1 overflow-hidden">{children}</div>
 
-          <div className="w-[360px] shrink-0 border-l">
-            <TeamChat />
-          </div>
+          {/* Desktop chat - TeamChat component handles mobile floating button */}
+          <TeamChat />
         </div>
       </ProtectedNavbar>
     </SidebarProvider>
