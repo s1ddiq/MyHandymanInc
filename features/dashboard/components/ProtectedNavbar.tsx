@@ -62,19 +62,23 @@ export default function ProtectedNavbar({
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild size="lg">
-                <Link href="/dashboard">
-                  <Image
-                    src="/favicon.ico"
-                    alt="MyHandymanInc"
-                    width={32}
-                    height={32}
-                    className="rounded-md"
-                  />
+              <div className="flex items-center justify-between">
+                <SidebarMenuButton asChild size="lg">
+                  <Link href="/dashboard">
+                    <Image
+                      src="/favicon.ico"
+                      alt="MyHandymanInc"
+                      width={32}
+                      height={32}
+                      className="rounded-md"
+                    />
 
-                  <span className="font-bold">MyHandymanInc</span>
-                </Link>
-              </SidebarMenuButton>
+                    <span className="font-bold">MyHandymanInc</span>
+                  </Link>
+                </SidebarMenuButton>
+
+                <SidebarTrigger />
+              </div>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
@@ -110,7 +114,7 @@ export default function ProtectedNavbar({
         </SidebarContent> */}
 
         <SidebarFooter>
-          <SidebarMenu>
+          <SidebarMenu className="flex flex-col gap-6">
             <SidebarMenuItem>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -147,10 +151,12 @@ export default function ProtectedNavbar({
             </SidebarMenuItem>
 
             <SidebarMenuItem>
-              <div className="flex items-center gap-2 px-2 py-2">
-                <UserButton />
-                <span className="text-sm">Account</span>
-              </div>
+              <SidebarMenuButton>
+                <div className="flex items-center ">
+                  <UserButton />
+                  <span>Account</span>
+                </div>
+              </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarFooter>
