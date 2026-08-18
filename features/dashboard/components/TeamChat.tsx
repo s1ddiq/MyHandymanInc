@@ -12,6 +12,7 @@ export default function TeamChat() {
 
   const [message, setMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const prevMessagesLengthRef = useRef(0);
 
   const {
     data: messages = [],
@@ -32,6 +33,13 @@ export default function TeamChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Request notification permission on mount
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }, []);
+
   // Auto-scroll to bottom when messages change
   useEffect(() => {
     scrollToBottom();
@@ -43,6 +51,45 @@ export default function TeamChat() {
       scrollToBottom();
     }
   }, [isLoading]);
+
+  // Check for new messages and send notification
+  useEffect(() => {
+    const prevLength = prevMessagesLengthRef.current;
+
+    if (
+      messages.length > prevLength &&
+      prevLength > 0 &&
+      "Notification" in window &&
+      Notification.permission === "granted"
+    ) {
+      // Get the newest message(s)
+      const newMessages = messages.slice(prevLength);
+
+      newMessages.forEach((msg) => {
+        // Don't notify for your own messages
+        if (msg.senderId === user?.id) return;
+
+        const senderName =
+          msg.sender?.fullName ?? msg.sender?.firstName ?? "Team member";
+
+        const notification = new Notification("New Team Chat Message", {
+          body: `${senderName}: ${msg.content}`,
+          icon: msg.sender?.imageUrl || "/favicon.ico",
+        });
+
+        // Auto-close notification after 5 seconds
+        setTimeout(() => notification.close(), 5000);
+
+        // Focus window when notification is clicked
+        notification.onclick = () => {
+          window.focus();
+          notification.close();
+        };
+      });
+    }
+
+    prevMessagesLengthRef.current = messages.length;
+  }, [messages, user?.id]);
 
   const handleSend = () => {
     const content = message.trim();

@@ -29,8 +29,8 @@ import {
   leadSchema,
   DEFAULT_LEAD_VALUES,
 } from "@/lib/validators/lead";
-import { FileJson, X } from "lucide-react";
-import { useState, useRef } from "react";
+import { FileJson, Loader2 } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 
 interface LeadFormDialogProps {
   open: boolean;
@@ -47,31 +47,58 @@ function inferFormDataFromJson(jsonData: any): Partial<CreateLeadInput> {
     inferredData.name = jsonData.customer.fullName;
   } else if (jsonData.messaging?.customerName) {
     inferredData.name = jsonData.messaging.customerName;
+  } else if (jsonData.name) {
+    inferredData.name = jsonData.name;
+  } else if (jsonData.customerName) {
+    inferredData.name = jsonData.customerName;
   }
 
   // Map email
   if (jsonData.contact?.email) {
     inferredData.email = jsonData.contact.email;
+  } else if (jsonData.email) {
+    inferredData.email = jsonData.email;
+  } else if (jsonData.customer?.email) {
+    inferredData.email = jsonData.customer.email;
   }
 
   // Map phone
   if (jsonData.contact?.phone) {
     inferredData.phone = jsonData.contact.phone;
+  } else if (jsonData.phone) {
+    inferredData.phone = jsonData.phone;
+  } else if (jsonData.customer?.phone) {
+    inferredData.phone = jsonData.customer.phone;
   }
 
   // Map service
   if (jsonData.jobDetails?.service) {
     inferredData.service = jsonData.jobDetails.service;
+  } else if (jsonData.service) {
+    inferredData.service = jsonData.service;
+  } else if (jsonData.job?.service) {
+    inferredData.service = jsonData.job.service;
   }
 
   // Map location
   if (jsonData.jobDetails?.location) {
     inferredData.location = jsonData.jobDetails.location;
+  } else if (jsonData.location) {
+    inferredData.location = jsonData.location;
+  } else if (jsonData.job?.location) {
+    inferredData.location = jsonData.job.location;
   }
 
-  // Map status from customer contactStatus or jobStatus
+  // Map status
+  const statusValue =
+    jsonData.customer?.contactStatus ||
+    jsonData.customer?.jobStatus ||
+    jsonData.status ||
+    jsonData.jobStatus ||
+    jsonData.contactStatus;
+
   if (
-    jsonData.customer?.contactStatus &&
+    statusValue &&
     [
       "Potential",
       "Contacted",
@@ -80,32 +107,29 @@ function inferFormDataFromJson(jsonData: any): Partial<CreateLeadInput> {
       "Negotiation",
       "Won",
       "Lost",
-    ].includes(jsonData.customer.contactStatus)
+      "Submitted",
+      "active",
+    ].includes(statusValue)
   ) {
-    inferredData.status = jsonData.customer.contactStatus;
-  } else if (
-    jsonData.customer?.jobStatus &&
-    [
-      "Potential",
-      "Contacted",
-      "Qualified",
-      "Proposal",
-      "Negotiation",
-      "Won",
-      "Lost",
-    ].includes(jsonData.customer.jobStatus)
-  ) {
-    inferredData.status = jsonData.customer.jobStatus;
+    inferredData.status = statusValue;
   }
 
   // Map customer timeframe
   if (jsonData.jobDetails?.customerTimeframe) {
     inferredData.customer_timeframe = jsonData.jobDetails.customerTimeframe;
+  } else if (jsonData.customerTimeframe) {
+    inferredData.customer_timeframe = jsonData.customerTimeframe;
+  } else if (jsonData.timeframe) {
+    inferredData.customer_timeframe = jsonData.timeframe;
   }
 
   // Map job details
   if (jsonData.jobDetails?.description) {
     inferredData.job_details = jsonData.jobDetails.description;
+  } else if (jsonData.jobDetails?.customerNotes) {
+    inferredData.job_details = jsonData.jobDetails.customerNotes;
+  } else if (jsonData.description) {
+    inferredData.job_details = jsonData.description;
   } else if (jsonData.jobDetails?.service) {
     inferredData.job_details = `${jsonData.jobDetails.service} - ${jsonData.jobDetails.location || "Location TBD"}`;
   }
@@ -113,6 +137,10 @@ function inferFormDataFromJson(jsonData: any): Partial<CreateLeadInput> {
   // Map description
   if (jsonData.jobDetails?.customerNotes) {
     inferredData.description = jsonData.jobDetails.customerNotes;
+  } else if (jsonData.description) {
+    inferredData.description = jsonData.description;
+  } else if (jsonData.jobDetails?.description) {
+    inferredData.description = jsonData.jobDetails.description;
   } else if (jsonData.jobDetails?.service) {
     inferredData.description = `${jsonData.jobDetails.service} - ${jsonData.jobDetails.location || "Location TBD"}`;
   }
@@ -120,21 +148,24 @@ function inferFormDataFromJson(jsonData: any): Partial<CreateLeadInput> {
   // Map customer notes
   if (jsonData.jobDetails?.customerNotes) {
     inferredData.customer_notes = jsonData.jobDetails.customerNotes;
+  } else if (jsonData.customerNotes) {
+    inferredData.customer_notes = jsonData.customerNotes;
+  } else if (jsonData.customer?.notes) {
+    inferredData.customer_notes = jsonData.customer.notes;
   }
 
-  // Map appointment if exists with EST timezone handling
-  if (jsonData.appointment?.date || jsonData.appointment?.time) {
-    let appointmentDate = null;
+  // Map appointment
+  const appointmentValue =
+    jsonData.appointment?.date ||
+    jsonData.appointment?.datetime ||
+    jsonData.appointment?.scheduledDate ||
+    jsonData.appointmentDate ||
+    jsonData.scheduledDate;
 
-    if (jsonData.appointment.date) {
-      appointmentDate = new Date(jsonData.appointment.date);
-    } else if (jsonData.appointment.datetime) {
-      appointmentDate = new Date(jsonData.appointment.datetime);
-    } else if (jsonData.appointment.scheduledDate) {
-      appointmentDate = new Date(jsonData.appointment.scheduledDate);
-    }
+  if (appointmentValue) {
+    const appointmentDate = new Date(appointmentValue);
 
-    if (appointmentDate && !isNaN(appointmentDate.getTime())) {
+    if (!isNaN(appointmentDate.getTime())) {
       inferredData.appointment = appointmentDate.toISOString();
     }
   }
@@ -151,8 +182,8 @@ export function LeadFormDialog({
   const router = useRouter();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  const [showJsonInput, setShowJsonInput] = useState(false);
   const [jsonText, setJsonText] = useState("");
+  const [isAutoCreating, setIsAutoCreating] = useState(false);
   const isProcessingRef = useRef(false);
 
   const form = useForm<CreateLeadInput>({
@@ -170,8 +201,10 @@ export function LeadFormDialog({
         form.reset();
         toast.success("Lead created successfully");
         router.refresh();
+        setIsAutoCreating(false);
       },
       onError: (error: any) => {
+        setIsAutoCreating(false);
         if (error.data?.code === "FORBIDDEN") {
           toast.error("You don't have permission to create leads");
           return;
@@ -195,8 +228,10 @@ export function LeadFormDialog({
         onOpenChange(false);
         toast.success("Lead updated successfully");
         router.refresh();
+        setIsAutoCreating(false);
       },
       onError: (error: any) => {
+        setIsAutoCreating(false);
         if (error.data?.code === "FORBIDDEN") {
           toast.error("You don't have permission to update leads");
           return;
@@ -211,16 +246,19 @@ export function LeadFormDialog({
     }),
   );
 
-  // Auto-create lead when JSON is pasted
+  // Auto-create lead when JSON is pasted in the textarea
   const handleJsonPaste = async (
     e: React.ClipboardEvent<HTMLTextAreaElement>,
   ) => {
+    e.preventDefault();
+
     const pastedText = e.clipboardData.getData("text");
     setJsonText(pastedText);
 
-    if (isProcessingRef.current) return;
+    if (isProcessingRef.current || isEditing) return;
 
     isProcessingRef.current = true;
+    setIsAutoCreating(true);
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 50));
@@ -228,32 +266,33 @@ export function LeadFormDialog({
       const jsonData = JSON.parse(pastedText);
       const inferredData = inferFormDataFromJson(jsonData);
 
-      Object.entries(inferredData).forEach(([key, value]) => {
-        if (value !== undefined) {
-          form.setValue(key as keyof CreateLeadInput, value);
-        }
-      });
-
-      toast.success("Form populated from pasted JSON!");
-
-      setTimeout(() => {
-        form.handleSubmit(async (data) => {
-          if (isEditing && lead) {
-            await updateMutation.mutateAsync({
-              id: lead.id,
-              data: data,
-            });
-          } else {
-            await createMutation.mutateAsync(data);
+      // Check if we have enough data to auto-create
+      if (inferredData.name && inferredData.service) {
+        Object.entries(inferredData).forEach(([key, value]) => {
+          if (value !== undefined) {
+            form.setValue(key as keyof CreateLeadInput, value);
           }
-        })();
-      }, 100);
+        });
 
-      setShowJsonInput(false);
+        toast.success("Lead data detected! Auto-creating...");
+
+        setTimeout(() => {
+          form.handleSubmit(async (data) => {
+            await createMutation.mutateAsync(data);
+          })();
+        }, 300);
+      } else {
+        toast.error(
+          "Not enough lead data found in JSON. Need name and service.",
+        );
+        setIsAutoCreating(false);
+      }
+
       setJsonText("");
     } catch (error) {
       console.error("Error processing pasted JSON:", error);
       toast.error("Invalid JSON format. Please check and try again.");
+      setIsAutoCreating(false);
     } finally {
       isProcessingRef.current = false;
     }
@@ -276,48 +315,39 @@ export function LeadFormDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-7xl! w-full! max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="flex flex-row items-center justify-between">
+        <DialogHeader>
           <DialogTitle className="text-2xl font-bold">
             {isEditing ? "Edit Lead" : "Create New Lead"}
           </DialogTitle>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setShowJsonInput(!showJsonInput)}
-            className="gap-2"
-          >
-            <FileJson className="h-4 w-4" />
-            {showJsonInput ? "Cancel" : "Paste JSON"}
-          </Button>
         </DialogHeader>
 
-        {showJsonInput && (
+        {/* JSON Paste Area - Always visible for new leads */}
+        {!isEditing && (
           <div className="rounded-lg bg-muted/30 p-4">
             <div className="flex items-center justify-between mb-3">
               <Label className="text-sm font-semibold">
                 Paste JSON Data (auto-creates lead)
               </Label>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setShowJsonInput(false);
-                  setJsonText("");
-                }}
-                className="h-6 w-6 p-0"
-              >
-                <X className="h-4 w-4" />
-              </Button>
+              {isAutoCreating && (
+                <div className="flex items-center gap-2 text-sm text-blue-600">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Creating...
+                </div>
+              )}
             </div>
             <Textarea
               value={jsonText}
               onPaste={handleJsonPaste}
               onChange={(e) => setJsonText(e.target.value)}
-              placeholder="Paste your JSON here."
-              rows={8}
+              placeholder="Paste your JSON here. If it contains lead data (name and service), it will auto-create."
+              rows={6}
               className="font-mono text-sm"
+              disabled={isAutoCreating}
             />
+            <p className="mt-2 text-xs text-muted-foreground">
+              Tip: Paste JSON with at least a name and service to auto-create a
+              lead.
+            </p>
           </div>
         )}
 
@@ -496,11 +526,12 @@ export function LeadFormDialog({
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
+              disabled={isAutoCreating}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending
+            <Button type="submit" disabled={isPending || isAutoCreating}>
+              {isPending || isAutoCreating
                 ? "Saving..."
                 : isEditing
                   ? "Save Changes"
