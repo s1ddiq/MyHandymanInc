@@ -21,7 +21,11 @@ export default function TeamChat() {
     data: messages = [],
     isLoading,
     refetch,
-  } = useQuery(trpc.teamChat.getMessages.queryOptions());
+  } = useQuery({
+    ...trpc.teamChat.getMessages.queryOptions(),
+    refetchInterval: 2000, // Poll every 2 seconds
+    refetchIntervalInBackground: true, // Keep polling when tab is not focused
+  });
 
   const sendMessageMutation = useMutation(
     trpc.teamChat.sendMessage.mutationOptions({
