@@ -29,6 +29,13 @@
       "when": 1780781260360,
       "tag": "0003_dusty_whiplash",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1786989010855,
+      "tag": "0004_typical_masque",
+      "breakpoints": true
     }
   ]
 }
