@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { createTRPCRouter, staffProcedure } from "../init";
+import { createTRPCRouter, staffProcedure, adminProcedure } from "../init";
 import { db } from "@/db";
 import { chatMessages } from "@/db/schema";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { clerkClient } from "@clerk/nextjs/server";
 
 export const teamChatRouter = createTRPCRouter({
@@ -78,6 +78,40 @@ export const teamChatRouter = createTRPCRouter({
         };
       } catch (error) {
         console.error("Failed to send chat message:", error);
+
+        return {
+          success: false,
+          message: null,
+        };
+      }
+    }),
+
+  deleteMessage: staffProcedure
+    .input(
+      z.object({
+        id: z.string().uuid(), // Changed from z.number() to z.string().uuid()
+      }),
+    )
+    .mutation(async ({ input }) => {
+      try {
+        const deleted = await db
+          .delete(chatMessages)
+          .where(eq(chatMessages.id, input.id))
+          .returning();
+
+        if (!deleted || deleted.length === 0) {
+          return {
+            success: false,
+            message: "Message not found or already deleted",
+          };
+        }
+
+        return {
+          success: true,
+          message: deleted[0],
+        };
+      } catch (error) {
+        console.error("Failed to delete chat message:", error);
 
         return {
           success: false,

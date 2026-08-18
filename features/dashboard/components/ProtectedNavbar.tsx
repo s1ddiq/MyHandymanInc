@@ -57,7 +57,7 @@ export default function ProtectedNavbar({
   const { theme, setTheme } = useTheme();
 
   return (
-    <SidebarProvider className="overflow-hidden!">
+    <SidebarProvider className="overflow-hidden!" defaultOpen={false}>
       <Sidebar collapsible="icon">
         <SidebarHeader>
           <SidebarMenu>

@@ -1,14 +1,17 @@
 "use client";
 
-import { Send } from "lucide-react";
+import { Send, Trash2 } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 import { useState, useRef, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/client";
+import { toast } from "sonner";
+import { useConfirmation } from "@/hooks/use-confirmation";
 
 export default function TeamChat() {
   const trpc = useTRPC();
   const { user } = useUser();
+  const { confirm, ConfirmationDialog } = useConfirmation();
 
   const [message, setMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -25,6 +28,22 @@ export default function TeamChat() {
       onSuccess: () => {
         setMessage("");
         refetch();
+      },
+    }),
+  );
+
+  const deleteMessageMutation = useMutation(
+    trpc.teamChat.deleteMessage.mutationOptions({
+      onSuccess: () => {
+        toast.success("Message deleted");
+        refetch();
+      },
+      onError: (error: any) => {
+        if (error.data?.code === "FORBIDDEN") {
+          toast.error("You don't have permission to delete messages");
+          return;
+        }
+        toast.error(error?.message ?? "Failed to delete message");
       },
     }),
   );
@@ -108,6 +127,20 @@ export default function TeamChat() {
     }
   };
 
+  const handleDeleteMessage = (msg: any) => {
+    confirm({
+      title: "Delete Message",
+      description: `Are you sure you want to delete this message from ${msg.sender?.fullName ?? msg.sender?.firstName ?? "Team member"}?`,
+      confirmText: "Delete",
+      variant: "destructive",
+      onConfirm: async () => {
+        await deleteMessageMutation.mutateAsync({
+          id: msg.id,
+        });
+      },
+    });
+  };
+
   return (
     <aside className="flex h-full w-[360px] shrink-0 flex-col border-l bg-white dark:bg-zinc-900">
       {/* Header */}
@@ -150,10 +183,10 @@ export default function TeamChat() {
               return (
                 <div
                   key={msg.id}
-                  className={`flex ${isMine ? "justify-end" : "justify-start"}`}
+                  className={`group flex ${isMine ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`flex max-w-[85%] gap-2 ${
+                    className={`flex max-w-full gap-2 ${
                       isMine ? "flex-row-reverse" : ""
                     }`}
                   >
@@ -170,7 +203,7 @@ export default function TeamChat() {
                       </div>
                     )}
 
-                    <div>
+                    <div className="relative min-w-0 flex-1">
                       {/* Name */}
                       {!isMine && (
                         <p className="mb-1 px-1 text-xs font-semibold text-muted-foreground">
@@ -182,13 +215,15 @@ export default function TeamChat() {
 
                       {/* Message */}
                       <div
-                        className={`rounded-2xl px-3 py-2 ${
+                        className={`inline-block max-w-full rounded-2xl px-3 py-2 ${
                           isMine
                             ? "rounded-br-sm bg-blue-500 text-white"
                             : "rounded-bl-sm bg-muted text-foreground"
                         }`}
                       >
-                        <p className="break-words text-sm">{msg.content}</p>
+                        <p className="whitespace-pre-wrap break-words text-sm">
+                          {msg.content}
+                        </p>
 
                         <p
                           className={`mt-1 text-[10px] ${
@@ -201,6 +236,17 @@ export default function TeamChat() {
                           })}
                         </p>
                       </div>
+
+                      {/* Delete button - visible on hover, only for admin */}
+                      <button
+                        onClick={() => handleDeleteMessage(msg)}
+                        className={`absolute -top-2 ${
+                          isMine ? "-left-8" : "-right-8"
+                        } hidden h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white opacity-0 shadow-sm transition-all hover:bg-red-600 group-hover:flex group-hover:opacity-100`}
+                        title="Delete message"
+                      >
+                        <Trash2 size={12} />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -233,6 +279,8 @@ export default function TeamChat() {
           </button>
         </div>
       </div>
+
+      <ConfirmationDialog />
     </aside>
   );
 }
