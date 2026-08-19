@@ -468,7 +468,7 @@ export default function AdminDashboard() {
                       <span>{bookedCount} booked</span>
                     </div>
 
-                    <div>
+                    {/* <div>
                       <span>{allLeads.length} total leads</span>
                     </div>
 
@@ -478,7 +478,7 @@ export default function AdminDashboard() {
 
                     <div>
                       <span>{submittedLeads.length} submitted</span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 
