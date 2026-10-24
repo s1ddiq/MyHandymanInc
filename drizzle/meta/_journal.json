@@ -36,6 +36,13 @@
       "when": 1786989010855,
       "tag": "0004_typical_masque",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792864590082,
+      "tag": "0005_military_magneto",
+      "breakpoints": true
     }
   ]
 }

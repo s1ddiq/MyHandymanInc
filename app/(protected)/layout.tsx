@@ -3,14 +3,15 @@ import TeamChat from "@/features/dashboard/components/TeamChat";
 import { checkRole } from "@/lib/utils/roles";
 import React from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import ManagementPanel from "@/features/dashboard/components/ManagementPanel";
 
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const allowed = (await checkRole("admin")) || (await checkRole("sales_rep"));
-
+  const allowed = await checkRole("admin");
+  // console.log(allowed);
   if (!allowed) {
     return (
       <div className="flex min-h-screen w-full flex-col items-center justify-center bg-gray-800 p-4">
@@ -33,7 +34,8 @@ export default async function AdminLayout({
           <div className="min-h-0 flex-1 overflow-hidden">{children}</div>
 
           {/* Desktop chat - TeamChat component handles mobile floating button */}
-          <TeamChat />
+          {/* <TeamChat /> */}
+          <ManagementPanel />
         </div>
       </ProtectedNavbar>
     </SidebarProvider>

@@ -1,6 +1,7 @@
 import {
   bigint,
   boolean,
+  integer,
   pgTable,
   serial,
   text,
@@ -78,4 +79,31 @@ export const chatMessageReads = pgTable("chat_message_reads", {
   userId: text("user_id").notNull(),
 
   readAt: timestamp("read_at").defaultNow().notNull(),
+});
+
+// schema.ts — add this
+export const signingRequests = pgTable("signing_requests", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  tokenNumber: integer("token_number")
+    .generatedAlwaysAsIdentity()
+    .notNull()
+    .unique(),
+
+  leadId: integer("lead_id").references(() => leads.id, {
+    onDelete: "set null",
+  }),
+
+  pdfPath: text("pdf_path").notNull(),
+  pdfFileName: text("pdf_file_name"),
+  signerName: text("signer_name"),
+  signerEmail: text("signer_email"),
+  status: text("status").notNull().default("pending"),
+  signatureData: text("signature_data"),
+  signedIp: text("signed_ip"),
+  signedUserAgent: text("signed_user_agent"),
+  sourceDomain: text("source_domain"),
+  expiresAt: timestamp("expires_at").notNull(),
+  signedAt: timestamp("signed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
