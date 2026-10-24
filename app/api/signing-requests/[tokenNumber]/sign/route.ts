@@ -2,8 +2,11 @@ import { and, eq, gt } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { signingRequests } from "@/db/schema";
+import { Resend } from "resend";
 
 export const runtime = "nodejs";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 function escapeHtml(value: string) {
   return value.replace(/[&<>"']/g, (character) => {
@@ -23,10 +26,9 @@ async function emailSigningNotice(details: {
   signerEmail: string | null;
   pdfFileName: string | null;
 }) {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.RESEND_FROM_EMAIL;
+  const from = process.env.CONTACT_EMAIL_FROM;
 
-  if (!apiKey || !from) {
+  if (!process.env.RESEND_API_KEY || !from) {
     throw new Error("RESEND_API_KEY or RESEND_FROM_EMAIL is missing.");
   }
 
@@ -34,42 +36,36 @@ async function emailSigningNotice(details: {
   const email = details.signerEmail?.trim() || "Not provided";
   const fileName = details.pdfFileName?.trim() || "PDF document";
 
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from,
-      to: ["myhandymaninc1@gmail.com", "snashct@gmail.com"],
-      subject: `Signed document ready: ${fileName}`,
-      text: [
-        "A signing request has been completed.",
-        "",
-        `Signer: ${name}`,
-        `Signer email: ${email}`,
-        `Document: ${fileName}`,
-        "",
-        "The signed status and signature are saved in the signing system.",
-      ].join("\n"),
-      html: `
-        <h2>Signed document ready</h2>
-        <p>A signing request has been completed.</p>
-        <ul>
-          <li><strong>Signer:</strong> ${escapeHtml(name)}</li>
-          <li><strong>Signer email:</strong> ${escapeHtml(email)}</li>
-          <li><strong>Document:</strong> ${escapeHtml(fileName)}</li>
-        </ul>
-        <p>The signed status and signature are saved in the signing system.</p>
-      `,
-    }),
+  const { data, error } = await resend.emails.send({
+    from,
+    to: ["myhandymaninc1@gmail.com", "snashct@gmail.com"],
+    subject: `Signed document ready: ${fileName}`,
+    text: [
+      "A signing request has been completed.",
+      "",
+      `Signer: ${name}`,
+      `Signer email: ${email}`,
+      `Document: ${fileName}`,
+      "",
+      "The signature has been saved in the signing system.",
+    ].join("\n"),
+    html: `
+      <h2>Signed document ready</h2>
+      <p>A signing request has been completed.</p>
+      <ul>
+        <li><strong>Signer:</strong> ${escapeHtml(name)}</li>
+        <li><strong>Signer email:</strong> ${escapeHtml(email)}</li>
+        <li><strong>Document:</strong> ${escapeHtml(fileName)}</li>
+      </ul>
+      <p>The signature has been saved in the signing system.</p>
+    `,
   });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Resend error (${response.status}): ${errorText}`);
+  if (error) {
+    throw new Error(`Resend error: ${error.message}`);
   }
+
+  return data;
 }
 
 export async function POST(
@@ -143,12 +139,12 @@ export async function POST(
       );
     }
 
-    // Signing is already saved. An email failure is logged but does not undo it.
+    // The signature is saved even if email delivery has a problem.
     try {
       await emailSigningNotice(signed);
     } catch (emailError) {
       console.error(
-        "Signature saved, but notification email failed:",
+        "Signature saved, but Resend notification failed:",
         emailError,
       );
     }
