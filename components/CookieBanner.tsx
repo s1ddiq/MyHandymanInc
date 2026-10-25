@@ -3,8 +3,10 @@
 import { useState, useEffect } from "react";
 import { Cookie } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function CookieBanner() {
+  const pathname = usePathname();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -25,7 +27,7 @@ export default function CookieBanner() {
     setIsVisible(false);
   };
 
-  if (!isVisible) return null;
+  if (!isVisible || pathname.includes("/sign/")) return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white border-t border-primary shadow-lg">
