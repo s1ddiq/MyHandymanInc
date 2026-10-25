@@ -19,7 +19,7 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <main>
+    <main className="light scheme-light">
       {/* Hero Section */}
       <section className="relative md:h-[calc(100vh-150px)] h-auto">
         <div className="absolute inset-0 overflow-hidden">

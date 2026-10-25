@@ -24,7 +24,7 @@ const HomeNavbar = () => {
   };
 
   return (
-    <header className="bg-background md:static sticky top-0 z-90">
+    <header className="bg-background md:static sticky top-0 z-90 light scheme-light">
       {/* Top bar with phone number - this will scroll away */}
       <div className="bg-primary/80 text-primary-foreground p-2 text-sm sm:text-base md:text-lg font-bold tracking-wide  md:flex hidden justify-center items-center">
         <Link href="tel:2032086095" className="hover:underline">

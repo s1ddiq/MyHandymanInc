@@ -1,0 +1,215 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { FileSignature, Loader2, Search } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { useTRPC } from "@/trpc/client";
+
+type SignedRequest = {
+  tokenNumber: number;
+  signerName: string | null;
+  signerEmail: string | null;
+  pdfFileName: string | null;
+  signedAt: Date | string | null;
+  signatureData: string | null;
+};
+
+export default function RecentSignatures() {
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [requests, setRequests] = useState<SignedRequest[]>([]);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const [visibleSignatures, setVisibleSignatures] = useState<number[]>([]);
+
+  const recentSignedOptions = trpc.signingRequests.getRecentSigned.queryOptions(
+    { search, offset: 0 },
+  );
+
+  const query = useQuery({
+    ...recentSignedOptions,
+    enabled: open,
+  });
+
+  useEffect(() => {
+    if (!query.data) return;
+
+    setRequests(query.data.requests as SignedRequest[]);
+    setOffset(query.data.nextOffset);
+    setHasMore(query.data.hasMore);
+  }, [query.data]);
+
+  async function loadMore() {
+    const nextOptions = trpc.signingRequests.getRecentSigned.queryOptions({
+      search,
+      offset,
+    });
+
+    const result = await queryClient.fetchQuery(nextOptions);
+
+    setRequests((current) => [
+      ...current,
+      ...(result.requests as SignedRequest[]),
+    ]);
+    setOffset(result.nextOffset);
+    setHasMore(result.hasMore);
+  }
+
+  function handleSearchChange(value: string) {
+    setSearch(value);
+    setRequests([]);
+    setOffset(0);
+    setHasMore(false);
+    setVisibleSignatures([]);
+  }
+
+  function handleOpenChange(nextOpen: boolean) {
+    setOpen(nextOpen);
+
+    if (nextOpen) {
+      setSearch("");
+      setRequests([]);
+      setOffset(0);
+      setHasMore(false);
+      setVisibleSignatures([]);
+    }
+  }
+
+  function toggleSignature(tokenNumber: number) {
+    setVisibleSignatures((current) =>
+      current.includes(tokenNumber)
+        ? current.filter((number) => number !== tokenNumber)
+        : [...current, tokenNumber],
+    );
+  }
+
+  return (
+    <Sheet open={open} onOpenChange={handleOpenChange}>
+      <SheetTrigger asChild>
+        <Button type="button" variant="outline" className="w-full">
+          <FileSignature className="mr-2 h-4 w-4" />
+          See recently signed
+        </Button>
+      </SheetTrigger>
+
+      <SheetContent className="w-full overflow-y-auto p-4 sm:max-w-lg">
+        <SheetHeader>
+          <SheetTitle>Recently signed</SheetTitle>
+          <SheetDescription>
+            Search signed documents by signer name or email.
+          </SheetDescription>
+        </SheetHeader>
+
+        <div className="relative mt-6">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(event) => handleSearchChange(event.target.value)}
+            placeholder="Search name or email"
+            className="pl-9"
+          />
+        </div>
+
+        {query.isError && (
+          <p role="alert" className="mt-4 text-sm text-destructive">
+            Could not load signed requests. You may need admin access.
+          </p>
+        )}
+
+        <div className="mt-5 space-y-3">
+          {requests.map((item) => {
+            const signatureIsVisible = visibleSignatures.includes(
+              item.tokenNumber,
+            );
+
+            return (
+              <article key={item.tokenNumber} className="rounded-lg border p-4">
+                <p className="font-medium">
+                  {item.signerName || "Name not provided"}
+                </p>
+
+                <p className="text-sm text-muted-foreground">
+                  {item.signerEmail || "Email not provided"}
+                </p>
+
+                <p className="mt-2 text-sm">
+                  {item.pdfFileName || "PDF document"}
+                </p>
+
+                {item.signedAt && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Signed {new Date(item.signedAt).toLocaleString()}
+                  </p>
+                )}
+
+                <div className="mt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => toggleSignature(item.tokenNumber)}
+                    disabled={!item.signatureData}
+                  >
+                    {signatureIsVisible ? "Hide signature" : "View signature"}
+                  </Button>
+
+                  {signatureIsVisible && item.signatureData && (
+                    <div className="mt-3 rounded-md border bg-white p-3">
+                      <img
+                        src={item.signatureData}
+                        alt={`Signature from ${item.signerName || "signer"}`}
+                        className="max-h-32 max-w-full object-contain"
+                      />
+                    </div>
+                  )}
+                </div>
+              </article>
+            );
+          })}
+
+          {(query.isLoading || query.isFetching) && requests.length === 0 && (
+            <p className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Loading…
+            </p>
+          )}
+
+          {!query.isLoading &&
+            !query.isFetching &&
+            !query.isError &&
+            requests.length === 0 && (
+              <p className="py-8 text-center text-sm text-muted-foreground">
+                No signed documents found.
+              </p>
+            )}
+
+          {hasMore && (
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              disabled={query.isFetching}
+              onClick={() => void loadMore()}
+            >
+              {query.isFetching ? "Loading…" : "Load more"}
+            </Button>
+          )}
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
