@@ -17,8 +17,6 @@ import {
   Plus,
   CalendarCheck,
   Inbox,
-  Smile,
-  Trash,
   X,
   RefreshCw,
   UserCheck,
@@ -28,6 +26,8 @@ import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
 
 type LeadTab = "active" | "submitted";
+
+const LEADS_PER_PAGE = 25;
 
 export default function AdminDashboard() {
   const trpc = useTRPC();
@@ -40,6 +40,7 @@ export default function AdminDashboard() {
   );
   const [activeTab, setActiveTab] = useState<LeadTab>("active");
   const [search, setSearch] = useState("");
+  const [visibleLeadCount, setVisibleLeadCount] = useState(LEADS_PER_PAGE);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const { confirm, ConfirmationDialog } = useConfirmation();
@@ -155,10 +156,28 @@ export default function AdminDashboard() {
   );
 
   const currentList = activeTab === "active" ? activeLeads : submittedLeads;
+  const isSearching = search.trim().length > 0;
+
+  // Search results show every match. Without a search, show 25 leads at a time.
+  const visibleLeads = isSearching
+    ? currentList
+    : currentList.slice(0, visibleLeadCount);
+
+  const hasMoreLeads = visibleLeadCount < currentList.length;
 
   const bookedCount = allLeads.filter((lead) =>
     Boolean(lead.appointment),
   ).length;
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setVisibleLeadCount(LEADS_PER_PAGE);
+  };
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value as LeadTab);
+    setVisibleLeadCount(LEADS_PER_PAGE);
+  };
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -206,7 +225,7 @@ export default function AdminDashboard() {
       {[...Array(5)].map((_, i) => (
         <div
           key={i}
-          className="h-24 rounded-2xl border animate-pulse bg-muted/30"
+          className="h-24 animate-pulse rounded-2xl border bg-muted/30"
         />
       ))}
     </div>
@@ -225,7 +244,7 @@ export default function AdminDashboard() {
 
                 <Input
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   placeholder="Search leads..."
                   className="pl-9 pr-9"
                 />
@@ -236,7 +255,8 @@ export default function AdminDashboard() {
                     variant="ghost"
                     size="icon"
                     className="absolute right-1 top-1 h-8 w-8"
-                    onClick={() => setSearch("")}
+                    onClick={() => handleSearchChange("")}
+                    aria-label="Clear search"
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -246,10 +266,7 @@ export default function AdminDashboard() {
 
             {/* TABS */}
             <div className="shrink-0 border-b p-3 sm:p-4">
-              <Tabs
-                value={activeTab}
-                onValueChange={(value) => setActiveTab(value as LeadTab)}
-              >
+              <Tabs value={activeTab} onValueChange={handleTabChange}>
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="active">
                     Active
@@ -283,6 +300,7 @@ export default function AdminDashboard() {
                 size="icon"
                 onClick={handleRefresh}
                 disabled={isRefreshing || isLoading}
+                aria-label="Refresh leads"
               >
                 <RefreshCw
                   className={cn(
@@ -324,7 +342,133 @@ export default function AdminDashboard() {
                   )}
                 </div>
               ) : (
-                <div className="space-y-2"></div>
+                <div className="space-y-2">
+                  {visibleLeads.map((lead) => (
+                    <button
+                      type="button"
+                      key={lead.id}
+                      onClick={() => setSelectedLeadForView(lead)}
+                      className={cn(
+                        "w-full rounded-xl border p-4 text-left transition-all",
+                        "hover:border-primary hover:shadow-sm",
+                        lead.appointment &&
+                          "border-l-4 border-l-green-500 bg-green-500/5",
+                        selectedLeadForView?.id === lead.id &&
+                          "border-primary bg-primary/5",
+                      )}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <h3 className="truncate font-semibold">
+                            {lead.name}
+                          </h3>
+
+                          <p className="truncate text-xs text-muted-foreground">
+                            {lead.service}
+                          </p>
+
+                          <p className="truncate text-xs text-muted-foreground">
+                            {lead.email}
+                          </p>
+
+                          {lead.phone && (
+                            <p className="truncate text-xs text-muted-foreground">
+                              {lead.phone}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="flex shrink-0 flex-col items-end gap-1">
+                          {lead.appointment && (
+                            <Badge className="bg-green-600 text-xs text-white hover:bg-green-600">
+                              Booked
+                            </Badge>
+                          )}
+
+                          {lead.status && lead.status !== "active" && (
+                            <Badge
+                              className={cn(
+                                "text-xs",
+                                lead.status === "Submitted" &&
+                                  "bg-blue-600 text-white hover:bg-blue-600",
+                                lead.status === "Potential" &&
+                                  "bg-yellow-500 text-white hover:bg-yellow-500",
+                                lead.status === "Contacted" &&
+                                  "bg-orange-500 text-white hover:bg-orange-500",
+                                lead.status === "Qualified" &&
+                                  "bg-purple-500 text-white hover:bg-purple-500",
+                                lead.status === "Proposal" &&
+                                  "bg-indigo-500 text-white hover:bg-indigo-500",
+                                lead.status === "Negotiation" &&
+                                  "bg-pink-500 text-white hover:bg-pink-500",
+                                lead.status === "Won" &&
+                                  "bg-emerald-600 text-white hover:bg-emerald-600",
+                                lead.status === "Lost" &&
+                                  "bg-red-500 text-white hover:bg-red-500",
+                              )}
+                            >
+                              {lead.status}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+
+                      {lead.appointment && (
+                        <div className="mt-2 flex items-center gap-2 text-xs text-green-600">
+                          <span className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
+                          Appointment Scheduled
+                        </div>
+                      )}
+
+                      <div className="mt-2 flex items-center justify-between gap-2">
+                        <p className="text-xs text-muted-foreground">
+                          {formatDistanceToNow(new Date(lead.created_at))} ago
+                        </p>
+
+                        {lead.status && (
+                          <span className="truncate text-xs text-muted-foreground">
+                            {lead.status}
+                          </span>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+
+                  {!isSearching && currentList.length > LEADS_PER_PAGE && (
+                    <div className="flex flex-wrap items-center justify-center gap-2 pt-3">
+                      {hasMoreLeads && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            setVisibleLeadCount((count) =>
+                              Math.min(
+                                count + LEADS_PER_PAGE,
+                                currentList.length,
+                              ),
+                            )
+                          }
+                        >
+                          Load more
+                        </Button>
+                      )}
+
+                      {hasMoreLeads && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            setVisibleLeadCount(currentList.length)
+                          }
+                        >
+                          Load all ({currentList.length})
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </div>
               )}
             </div>
 
@@ -359,7 +503,7 @@ export default function AdminDashboard() {
             <div className="shrink-0 rounded-2xl border bg-background p-4 dark:bg-zinc-900 sm:p-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2 ">
+                  <div className="flex flex-wrap items-center gap-2">
                     <h1 className="text-2xl font-bold sm:text-3xl">
                       Admin Dashboard
                     </h1>
@@ -367,7 +511,7 @@ export default function AdminDashboard() {
                     <Badge className="bg-red-500">Admin</Badge>
                   </div>
 
-                  <p className="mt-1 text-sm text-muted-foreground md:block hidden">
+                  <p className="mt-1 hidden text-sm text-muted-foreground md:block">
                     Manage customers, appointments, and leads.
                   </p>
 
@@ -376,18 +520,6 @@ export default function AdminDashboard() {
                       <CalendarCheck className="h-4 w-4 text-green-600" />
                       <span>{bookedCount} booked</span>
                     </div>
-
-                    {/* <div>
-                      <span>{allLeads.length} total leads</span>
-                    </div>
-
-                    <div>
-                      <span>{activeLeads.length} active</span>
-                    </div>
-
-                    <div>
-                      <span>{submittedLeads.length} submitted</span>
-                    </div> */}
                   </div>
                 </div>
 
