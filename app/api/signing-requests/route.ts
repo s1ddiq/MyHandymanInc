@@ -1,8 +1,13 @@
 import { randomUUID } from "node:crypto";
+import { PDFDocument } from "pdf-lib";
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { signingRequests } from "@/db/schema";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import {
+  isValidSignatureBox,
+  type SignatureBox,
+} from "@/lib/signing/signature-box";
 
 export const runtime = "nodejs";
 
@@ -17,6 +22,7 @@ export async function POST(request: Request) {
     const pdf = formData.get("pdf");
     const signerName = String(formData.get("signerName") ?? "").trim();
     const signerEmail = String(formData.get("signerEmail") ?? "").trim();
+    const rawBox = formData.get("signatureBox");
 
     if (!(pdf instanceof File) || pdf.size === 0) {
       return NextResponse.json(
@@ -44,7 +50,6 @@ export async function POST(request: Request) {
 
     const bytes = Buffer.from(await pdf.arrayBuffer());
 
-    // Basic PDF signature check; the browser-supplied MIME type alone isn't enough.
     if (bytes.subarray(0, 5).toString() !== "%PDF-") {
       return NextResponse.json(
         { error: "The uploaded file is not a valid PDF." },
@@ -52,7 +57,32 @@ export async function POST(request: Request) {
       );
     }
 
-    // Use an unguessable storage path even though the displayed link number is sequential.
+    let signatureBox: SignatureBox;
+
+    try {
+      const parsed: unknown = JSON.parse(String(rawBox ?? ""));
+      if (!isValidSignatureBox(parsed)) {
+        throw new Error("Invalid signature box.");
+      }
+      signatureBox = parsed;
+    } catch {
+      return NextResponse.json(
+        { error: "Choose a valid signature location on the PDF." },
+        { status: 400 },
+      );
+    }
+
+    const document = await PDFDocument.load(bytes, {
+      ignoreEncryption: false,
+    });
+
+    if (signatureBox.page >= document.getPageCount()) {
+      return NextResponse.json(
+        { error: "The selected signature page does not exist in this PDF." },
+        { status: 400 },
+      );
+    }
+
     pdfPath = `${randomUUID()}.pdf`;
 
     const { error: uploadError } = await supabaseAdmin.storage
@@ -77,6 +107,7 @@ export async function POST(request: Request) {
       .values({
         pdfPath,
         pdfFileName: pdf.name.slice(0, 255),
+        signatureBox,
         signerName: signerName || null,
         signerEmail: signerEmail || null,
         sourceDomain: "myhandymaninc",
@@ -88,17 +119,14 @@ export async function POST(request: Request) {
       throw new Error("Signing request insert returned no row.");
     }
 
-    const link = `https://yourapplianceking.com/sign/${created.tokenNumber}`;
-
     return NextResponse.json({
       ok: true,
       tokenNumber: created.tokenNumber,
-      link,
+      link: `https://yourapplianceking.com/sign/${created.tokenNumber}`,
     });
   } catch (error) {
     console.error("Could not create signing request:", error);
 
-    // Clean up uploaded file if the database insert failed.
     if (pdfPath) {
       await supabaseAdmin.storage
         .from(BUCKET)

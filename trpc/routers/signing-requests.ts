@@ -29,7 +29,7 @@ export const signingRequestsRouter = createTRPCRouter({
           signerEmail: signingRequests.signerEmail,
           pdfFileName: signingRequests.pdfFileName,
           signedAt: signingRequests.signedAt,
-          signatureData: signingRequests.signatureData,
+          signedPdfPath: signingRequests.signedPdfPath,
         })
         .from(signingRequests)
         .where(
@@ -42,7 +42,14 @@ export const signingRequestsRouter = createTRPCRouter({
         .offset(input.offset);
 
       return {
-        requests: rows.slice(0, 5),
+        requests: rows.slice(0, 5).map((row) => ({
+          tokenNumber: row.tokenNumber,
+          signerName: row.signerName,
+          signerEmail: row.signerEmail,
+          pdfFileName: row.pdfFileName,
+          signedAt: row.signedAt,
+          hasSignedPdf: Boolean(row.signedPdfPath),
+        })),
         hasMore: rows.length > 5,
         nextOffset: input.offset + 5,
       };

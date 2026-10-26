@@ -2,6 +2,7 @@ import {
   bigint,
   boolean,
   integer,
+  jsonb,
   pgTable,
   serial,
   text,
@@ -9,6 +10,15 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
+
+// Coordinates are normalized from 0 to 1 relative to the PDF page.
+type SignatureBox = {
+  page: number; // zero-based page index
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
 
 export const leads = pgTable("leads", {
   id: serial("id").primaryKey(),
@@ -95,6 +105,8 @@ export const signingRequests = pgTable("signing_requests", {
 
   pdfPath: text("pdf_path").notNull(),
   pdfFileName: text("pdf_file_name"),
+  signatureBox: jsonb("signature_box").$type<SignatureBox>(),
+  signedPdfPath: text("signed_pdf_path"),
   signerName: text("signer_name"),
   signerEmail: text("signer_email"),
   status: text("status").notNull().default("pending"),

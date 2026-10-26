@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { FileSignature, Loader2, Search } from "lucide-react";
+import { Download, FileSignature, Loader2, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,8 +22,13 @@ type SignedRequest = {
   signerEmail: string | null;
   pdfFileName: string | null;
   signedAt: Date | string | null;
-  signatureData: string | null;
+  hasSignedPdf: boolean;
 };
+
+function signedPdfUrl(tokenNumber: number, download = false) {
+  const base = `/api/signing-requests/${tokenNumber}/signed-pdf`;
+  return download ? `${base}?download=1` : base;
+}
 
 export default function RecentSignatures() {
   const trpc = useTRPC();
@@ -34,7 +39,9 @@ export default function RecentSignatures() {
   const [requests, setRequests] = useState<SignedRequest[]>([]);
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(false);
-  const [visibleSignatures, setVisibleSignatures] = useState<number[]>([]);
+  const [previewToken, setPreviewToken] = useState<number | null>(null);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [loadMoreError, setLoadMoreError] = useState("");
 
   const recentSignedOptions = trpc.signingRequests.getRecentSigned.queryOptions(
     { search, offset: 0 },
@@ -54,19 +61,30 @@ export default function RecentSignatures() {
   }, [query.data]);
 
   async function loadMore() {
-    const nextOptions = trpc.signingRequests.getRecentSigned.queryOptions({
-      search,
-      offset,
-    });
+    if (isLoadingMore || !hasMore) return;
 
-    const result = await queryClient.fetchQuery(nextOptions);
+    setIsLoadingMore(true);
+    setLoadMoreError("");
 
-    setRequests((current) => [
-      ...current,
-      ...(result.requests as SignedRequest[]),
-    ]);
-    setOffset(result.nextOffset);
-    setHasMore(result.hasMore);
+    try {
+      const nextOptions = trpc.signingRequests.getRecentSigned.queryOptions({
+        search,
+        offset,
+      });
+
+      const result = await queryClient.fetchQuery(nextOptions);
+
+      setRequests((current) => [
+        ...current,
+        ...(result.requests as SignedRequest[]),
+      ]);
+      setOffset(result.nextOffset);
+      setHasMore(result.hasMore);
+    } catch {
+      setLoadMoreError("Could not load more signed documents.");
+    } finally {
+      setIsLoadingMore(false);
+    }
   }
 
   function handleSearchChange(value: string) {
@@ -74,7 +92,8 @@ export default function RecentSignatures() {
     setRequests([]);
     setOffset(0);
     setHasMore(false);
-    setVisibleSignatures([]);
+    setPreviewToken(null);
+    setLoadMoreError("");
   }
 
   function handleOpenChange(nextOpen: boolean) {
@@ -85,15 +104,14 @@ export default function RecentSignatures() {
       setRequests([]);
       setOffset(0);
       setHasMore(false);
-      setVisibleSignatures([]);
+      setPreviewToken(null);
+      setLoadMoreError("");
     }
   }
 
-  function toggleSignature(tokenNumber: number) {
-    setVisibleSignatures((current) =>
-      current.includes(tokenNumber)
-        ? current.filter((number) => number !== tokenNumber)
-        : [...current, tokenNumber],
+  function togglePreview(tokenNumber: number) {
+    setPreviewToken((current) =>
+      current === tokenNumber ? null : tokenNumber,
     );
   }
 
@@ -106,11 +124,11 @@ export default function RecentSignatures() {
         </Button>
       </SheetTrigger>
 
-      <SheetContent className="w-full overflow-y-auto p-4 sm:max-w-lg">
+      <SheetContent className="w-full overflow-y-auto p-4 sm:max-w-3xl">
         <SheetHeader>
           <SheetTitle>Recently signed</SheetTitle>
           <SheetDescription>
-            Search signed documents by signer name or email.
+            Preview or download completed PDFs. Search by signer name or email.
           </SheetDescription>
         </SheetHeader>
 
@@ -130,14 +148,15 @@ export default function RecentSignatures() {
           </p>
         )}
 
-        <div className="mt-5 space-y-3">
+        <div className="mt-5 space-y-4">
           {requests.map((item) => {
-            const signatureIsVisible = visibleSignatures.includes(
-              item.tokenNumber,
-            );
+            const isPreviewOpen = previewToken === item.tokenNumber;
 
             return (
-              <article key={item.tokenNumber} className="rounded-lg border p-4">
+              <article
+                key={item.tokenNumber}
+                className="rounded-lg border p-4"
+              >
                 <p className="font-medium">
                   {item.signerName || "Name not provided"}
                 </p>
@@ -156,27 +175,42 @@ export default function RecentSignatures() {
                   </p>
                 )}
 
-                <div className="mt-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => toggleSignature(item.tokenNumber)}
-                    disabled={!item.signatureData}
-                  >
-                    {signatureIsVisible ? "Hide signature" : "View signature"}
-                  </Button>
+                {item.hasSignedPdf ? (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => togglePreview(item.tokenNumber)}
+                    >
+                      {isPreviewOpen ? "Hide signed PDF" : "View signed PDF"}
+                    </Button>
 
-                  {signatureIsVisible && item.signatureData && (
-                    <div className="mt-3 rounded-md border bg-white p-3">
-                      <img
-                        src={item.signatureData}
-                        alt={`Signature from ${item.signerName || "signer"}`}
-                        className="max-h-32 max-w-full object-contain"
-                      />
-                    </div>
-                  )}
-                </div>
+                    <Button asChild size="sm">
+                      <a
+                        href={signedPdfUrl(item.tokenNumber, true)}
+                        download
+                      >
+                        <Download className="mr-2 h-4 w-4" />
+                        Download signed PDF
+                      </a>
+                    </Button>
+                  </div>
+                ) : (
+                  <p className="mt-3 text-sm text-muted-foreground">
+                    The signed PDF isn’t available for this request.
+                  </p>
+                )}
+
+                {isPreviewOpen && item.hasSignedPdf && (
+                  <div className="mt-4 overflow-hidden rounded-md border">
+                    <iframe
+                      src={signedPdfUrl(item.tokenNumber)}
+                      title={`Signed PDF: ${item.pdfFileName || "Document"}`}
+                      className="h-[65vh] w-full bg-white"
+                    />
+                  </div>
+                )}
               </article>
             );
           })}
@@ -197,15 +231,21 @@ export default function RecentSignatures() {
               </p>
             )}
 
+          {loadMoreError && (
+            <p role="alert" className="text-sm text-destructive">
+              {loadMoreError}
+            </p>
+          )}
+
           {hasMore && (
             <Button
               type="button"
               variant="outline"
               className="w-full"
-              disabled={query.isFetching}
+              disabled={isLoadingMore}
               onClick={() => void loadMore()}
             >
-              {query.isFetching ? "Loading…" : "Load more"}
+              {isLoadingMore ? "Loading…" : "Load more"}
             </Button>
           )}
         </div>

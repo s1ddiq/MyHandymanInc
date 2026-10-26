@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
+
 import { db } from "@/db";
 import { signingRequests } from "@/db/schema";
 import { supabaseAdmin } from "@/lib/supabase-admin";
@@ -40,12 +41,26 @@ export default async function SignPage({
     );
   }
 
+  if (!signingRequest.signatureBox) {
+    return (
+      <main className="mx-auto max-w-xl p-8 text-center">
+        <h1 className="text-2xl font-semibold">
+          This document has no signature location.
+        </h1>
+        <p className="mt-2 text-muted-foreground">
+          Please contact the sender for a new signing link.
+        </p>
+      </main>
+    );
+  }
+
   const { data, error } = await supabaseAdmin.storage
     .from("signing-documents")
     .createSignedUrl(signingRequest.pdfPath, 10 * 60);
 
   if (error || !data?.signedUrl) {
     console.error("Could not create PDF link:", error?.message);
+
     return (
       <main className="mx-auto max-w-xl p-8 text-center">
         <h1 className="text-2xl font-semibold">
@@ -57,10 +72,11 @@ export default async function SignPage({
 
   return (
     <SignDocument
-      tokenNumber={tokenNumber}
+      tokenNumber={signingRequest.tokenNumber}
       pdfUrl={data.signedUrl}
       fileName={signingRequest.pdfFileName ?? "Document.pdf"}
       signerName={signingRequest.signerName ?? ""}
+      signatureBox={signingRequest.signatureBox}
     />
   );
 }
