@@ -1,11 +1,11 @@
-import { randomUUID } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 import { and, eq, gt } from "drizzle-orm";
 import { PDFDocument } from "pdf-lib";
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
 import { db } from "@/db";
-import { signingRequests } from "@/db/schema";
+import { accessCodes, signingRequests } from "@/db/schema";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import {
   isValidSignatureBox,
@@ -36,57 +36,93 @@ function decodeSignatureData(dataUrl: string) {
 
   const bytes = Buffer.from(match[1], "base64");
   if (bytes.length === 0 || bytes.length > 1_500_000) return null;
+
   return bytes;
 }
 
+function generateAccessCode() {
+  return randomBytes(5).toString("hex").toUpperCase();
+}
+
+function safeFileName(value: string | null) {
+  const baseName = value?.trim() || "signed-document.pdf";
+  const cleaned = baseName.replace(/[\r\n"\\/]/g, "_");
+
+  return cleaned.toLowerCase().endsWith(".pdf") ? cleaned : `${cleaned}.pdf`;
+}
+
 async function emailSigningNotice(details: {
+  tokenNumber: number;
+  accessCode: string;
   signerName: string | null;
   signerEmail: string | null;
   pdfFileName: string | null;
-  signedPdfBytes: Uint8Array;
 }) {
   const from = process.env.CONTACT_EMAIL_FROM;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  const email = details.signerEmail?.trim();
 
   if (!process.env.RESEND_API_KEY || !from) {
     throw new Error("RESEND_API_KEY or CONTACT_EMAIL_FROM is missing.");
   }
 
-  const name = details.signerName?.trim() || "Not provided";
-  const email = details.signerEmail?.trim() || "Not provided";
-  const fileName = details.pdfFileName?.trim() || "signed-document.pdf";
-  const attachmentName = `signed-${fileName.replace(/[\\/:*?"<>|]/g, "_")}`;
+  if (!appUrl) {
+    throw new Error("NEXT_PUBLIC_APP_URL is missing.");
+  }
+
+  if (!email) {
+    throw new Error("Signer email is missing.");
+  }
+
+  const name = details.signerName?.trim() || "there";
+  const fileName = safeFileName(details.pdfFileName);
+  const downloadUrl = new URL(
+    `/api/signing/${details.tokenNumber}/signed-pdf`,
+    appUrl,
+  ).toString();
+  const supportEmail = "snashct@gmail.com";
 
   const { error } = await resend.emails.send({
     from,
-    to: ["myhandymaninc1@gmail.com", "snashct@gmail.com"],
-    subject: `Signed document ready: ${fileName}`,
+    to: [email],
+    subject: `Your signed document: ${fileName}`,
     text: [
-      "A signing request has been completed.",
+      `Hi ${name},`,
       "",
-      `Signer: ${name}`,
-      `Signer email: ${email}`,
+      "You have successfully signed the document.",
+      "",
+      "Click the link below to download a copy of the document with your signature:",
+      downloadUrl,
+      "",
+      `Enter this access code when prompted: ${details.accessCode}`,
+      "",
+      `If you have an issue downloading the document, please contact ${supportEmail}.`,
+      "",
       `Document: ${fileName}`,
-      "The completed signed PDF is attached.",
     ].join("\n"),
     html: `
-      <h2>Signed document ready</h2>
-      <p>A signing request has been completed.</p>
-      <ul>
-        <li><strong>Signer:</strong> ${escapeHtml(name)}</li>
-        <li><strong>Signer email:</strong> ${escapeHtml(email)}</li>
-        <li><strong>Document:</strong> ${escapeHtml(fileName)}</li>
-      </ul>
-      <p>The completed signed PDF is attached.</p>
+      <p>Hi ${escapeHtml(name)},</p>
+      <p>You have successfully signed the document.</p>
+      <p>
+        <a href="${escapeHtml(downloadUrl)}">
+          Download a copy of your signed document
+        </a>
+      </p>
+      <p>Enter this access code when prompted:</p>
+      <p style="font-size: 22px; font-weight: bold; letter-spacing: 3px;">
+        ${escapeHtml(details.accessCode)}
+      </p>
+      <p>
+        If you have an issue downloading the document, please contact
+        <a href="mailto:${supportEmail}">${supportEmail}</a>.
+      </p>
+      <p>Document: ${escapeHtml(fileName)}</p>
     `,
-    attachments: [
-      {
-        filename: attachmentName,
-        content: Buffer.from(details.signedPdfBytes).toString("base64"),
-      },
-    ],
   });
 
-  if (error) throw new Error(`Resend error: ${error.message}`);
+  if (error) {
+    throw new Error(`Resend error: ${error.message}`);
+  }
 }
 
 export async function POST(
@@ -134,6 +170,7 @@ export async function POST(
     const [pending] = await db
       .select({
         id: signingRequests.id,
+        tokenNumber: signingRequests.tokenNumber,
         pdfPath: signingRequests.pdfPath,
         pdfFileName: signingRequests.pdfFileName,
         signerName: signingRequests.signerName,
@@ -177,11 +214,12 @@ export async function POST(
       );
     }
 
-    const sourceBytes = new Uint8Array(await originalFile.arrayBuffer());
-    const pdf = await PDFDocument.load(sourceBytes);
+    const pdf = await PDFDocument.load(
+      new Uint8Array(await originalFile.arrayBuffer()),
+    );
     const pages = pdf.getPages();
 
-    if (signatureBox.page >= pages.length) {
+    if (signatureBox.page < 0 || signatureBox.page >= pages.length) {
       return NextResponse.json(
         { error: "The saved signature box points to a missing PDF page." },
         { status: 409 },
@@ -189,6 +227,7 @@ export async function POST(
     }
 
     const signatureBytes = decodeSignatureData(signatureData);
+
     if (!signatureBytes) {
       return NextResponse.json(
         { error: "Signature is invalid." },
@@ -198,14 +237,14 @@ export async function POST(
 
     const image = await pdf.embedPng(signatureBytes);
     const page = pages[signatureBox.page];
-    const pageWidth = page.getWidth();
-    const pageHeight = page.getHeight();
 
     page.drawImage(image, {
-      x: signatureBox.x * pageWidth,
-      y: pageHeight - (signatureBox.y + signatureBox.height) * pageHeight,
-      width: signatureBox.width * pageWidth,
-      height: signatureBox.height * pageHeight,
+      x: signatureBox.x * page.getWidth(),
+      y:
+        page.getHeight() -
+        (signatureBox.y + signatureBox.height) * page.getHeight(),
+      width: signatureBox.width * page.getWidth(),
+      height: signatureBox.height * page.getHeight(),
     });
 
     const signedPdfBytes = await pdf.save();
@@ -226,26 +265,26 @@ export async function POST(
       );
     }
 
-    const signedIp =
-      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
-    const signedUserAgent = request.headers.get("user-agent");
+    const accessCode = generateAccessCode();
+    const signedAt = new Date();
 
     const [updated] = await db
       .update(signingRequests)
       .set({
         status: "signed",
         signatureData,
-        signedIp,
-        signedUserAgent,
-        signedAt: new Date(),
+        signedIp:
+          request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
+        signedUserAgent: request.headers.get("user-agent"),
+        signedAt,
         signedPdfPath,
-        updatedAt: new Date(),
+        updatedAt: signedAt,
       })
       .where(
         and(
           eq(signingRequests.id, pending.id),
           eq(signingRequests.status, "pending"),
-          gt(signingRequests.expiresAt, new Date()),
+          gt(signingRequests.expiresAt, signedAt),
         ),
       )
       .returning({ id: signingRequests.id });
@@ -258,18 +297,23 @@ export async function POST(
       );
     }
 
+    await db.insert(accessCodes).values({
+      code: accessCode,
+      signingRequestId: pending.id,
+      isActive: true,
+      expiresAt: null,
+    });
+
     try {
       await emailSigningNotice({
+        tokenNumber: pending.tokenNumber,
+        accessCode,
         signerName: pending.signerName,
         signerEmail: pending.signerEmail,
         pdfFileName: pending.pdfFileName,
-        signedPdfBytes,
       });
     } catch (emailError) {
-      console.error(
-        "Signature saved, but Resend notification failed:",
-        emailError,
-      );
+      console.error("Signature saved, but signer email failed:", emailError);
     }
 
     return NextResponse.json({ ok: true });
