@@ -41,6 +41,12 @@ export const leads = pgTable("leads", {
 export const accessCodes = pgTable("access_codes", {
   id: serial("id").primaryKey(),
   code: varchar("code", { length: 255 }).notNull().unique(),
+
+  signingRequestId: uuid("signing_request_id").references(
+    () => signingRequests.id,
+    { onDelete: "cascade" },
+  ),
+
   isActive: boolean("is_active").notNull().default(true),
   usedAt: timestamp("used_at"),
   expiresAt: timestamp("expires_at"),
