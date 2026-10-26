@@ -77,7 +77,7 @@ async function emailSigningNotice(details: {
   const name = details.signerName?.trim() || "there";
   const fileName = safeFileName(details.pdfFileName);
   const downloadUrl = new URL(
-    `/api/signing/${details.tokenNumber}/signed-pdf`,
+    `/api/signing/${details.tokenNumber}/signed-pdf?download=1`,
     appUrl,
   ).toString();
   const supportEmail = "snashct@gmail.com";
