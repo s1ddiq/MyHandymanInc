@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { createClient } from "@supabase/supabase-js";
 import {
   Check,
   Clipboard,
@@ -23,9 +24,23 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import RecentSignatures from "@/features/dashboard/components/RecentSignatures";
-import TeamChatSheet from "./TeamChatSheet";
 import SignatureBoxEditor from "./SignatureBoxEditorClient";
 import type { SignatureBox } from "@/lib/signing/signature-box";
+
+const MAX_PDF_BYTES = 20 * 1024 * 1024;
+
+function createBrowserSupabaseClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!url || !key) {
+    throw new Error("Supabase public URL/key is not configured.");
+  }
+
+  return createClient(url, key);
+}
 
 export default function ManagementPanel() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -51,12 +66,19 @@ export default function ManagementPanel() {
       return;
     }
 
-    if (
-      selectedFile.type !== "application/pdf" &&
-      !selectedFile.name.toLowerCase().endsWith(".pdf")
-    ) {
+    const hasPdfExtension = selectedFile.name.toLowerCase().endsWith(".pdf");
+    const hasPdfMimeType =
+      !selectedFile.type || selectedFile.type === "application/pdf";
+
+    if (!hasPdfExtension || !hasPdfMimeType) {
       setFile(null);
       setError("Please choose a PDF file.");
+      return;
+    }
+
+    if (selectedFile.size > MAX_PDF_BYTES) {
+      setFile(null);
+      setError("PDF must be 20 MB or smaller.");
       return;
     }
 
@@ -80,23 +102,63 @@ export default function ManagementPanel() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("pdf", file);
-    formData.append("signerName", signerName);
-    formData.append("signerEmail", signerEmail);
-    formData.append("signatureBox", JSON.stringify(signatureBox));
-
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/signing-requests", {
+      // Ask the server for a one-time Supabase upload token.
+      const prepareResponse = await fetch("/api/signing-requests", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "prepare",
+          fileName: file.name,
+          fileSize: file.size,
+          contentType: "application/pdf",
+        }),
       });
 
-      const result = await response.json();
+      const prepared = await prepareResponse.json();
 
-      if (!response.ok) {
+      if (!prepareResponse.ok) {
+        throw new Error(prepared.error || "Could not prepare the PDF upload.");
+      }
+
+      if (
+        typeof prepared.pdfPath !== "string" ||
+        typeof prepared.token !== "string"
+      ) {
+        throw new Error("The server returned an invalid upload token.");
+      }
+
+      // Send the PDF directly from the browser to Supabase Storage.
+      const supabase = createBrowserSupabaseClient();
+      const { error: uploadError } = await supabase.storage
+        .from("signing-documents")
+        .uploadToSignedUrl(prepared.pdfPath, prepared.token, file, {
+          contentType: "application/pdf",
+        });
+
+      if (uploadError) {
+        throw new Error(`PDF upload failed: ${uploadError.message}`);
+      }
+
+      // Send only metadata to Vercel; the PDF itself is already in Storage.
+      const completeResponse = await fetch("/api/signing-requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "complete",
+          pdfPath: prepared.pdfPath,
+          pdfFileName: file.name,
+          signerName,
+          signerEmail,
+          signatureBox,
+        }),
+      });
+
+      const result = await completeResponse.json();
+
+      if (!completeResponse.ok) {
         throw new Error(
           result.error || "Could not create the signing request.",
         );
@@ -228,7 +290,7 @@ export default function ManagementPanel() {
           )}
 
           <p className="text-xs text-muted-foreground">
-            The PDF is uploaded after you choose the signature location.
+            The PDF uploads after you choose the signature location.
           </p>
         </div>
 
@@ -283,7 +345,7 @@ export default function ManagementPanel() {
         <RecentSignatures />
       </div>
 
-      <div className="mt-8">{/* <TeamChatSheet /> */}</div>
+      <div className="mt-8" />
     </div>
   );
 
