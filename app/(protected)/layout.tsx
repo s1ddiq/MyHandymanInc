@@ -10,7 +10,7 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const allowed = await checkRole("admin");
+  const allowed = (await checkRole("admin")) || (await checkRole("sales_rep"));
   // console.log(allowed);
   if (!allowed) {
     return (
