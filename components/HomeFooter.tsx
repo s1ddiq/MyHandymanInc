@@ -1,199 +1,122 @@
-import React from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Mail,
-  Phone,
-  MapPin,
-  Clock,
-  ChevronRight,
-  CheckCircle2,
-} from "lucide-react";
 import Link from "next/link";
+import { CheckCircle2, Clock, Mail } from "lucide-react";
 
-const HomeFooter = () => {
+const ctPhone = { label: "(203) 441-3471", href: "tel:+12034413471" };
+const supportEmail = "myhandymaninc1@gmail.com";
+
+const offices = [
+  { city: "Stamford, CT", phone: ctPhone },
+  {
+    city: "Philadelphia, PA",
+    phone: { label: "(215) 728-9008", href: "tel:+12157289008" },
+  },
+  {
+    city: "Plainfield, NJ",
+    phone: { label: "(973) 899-9626", href: "tel:+19738999626" },
+  },
+  {
+    city: "Elmsford, NY",
+    phone: { label: "(646) 416-9009", href: "tel:+16464169009" },
+  },
+  {
+    city: "Rockville, MD",
+    phone: { label: "(301) 200-9008", href: "tel:+13012009008" },
+  },
+];
+
+const contentWidth =
+  "mx-auto w-[calc(100%-1.65rem)] max-w-[1320px] min-[491px]:w-[calc(100%-2.4rem)] min-[1031px]:w-[calc(100%-4.5rem)]";
+const sectionHeading = "mb-2 text-[1.03rem] leading-tight font-bold text-white";
+
+export default function HomeFooter() {
   return (
-    <footer className="bg-gray-900 text-gray-300 light scheme-light">
-      {/* Main Footer Content */}
-      <div className="f mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Company Info */}
-          <div>
-            <h3 className="text-2xl font-bold text-white mb-4">MyHandyMan</h3>
-            <p className="text-gray-400 mb-4">
-              Your trusted, local handyman & home improvement experts in
-              Connecticut. Quality craftsmanship, premium materials, and expert
-              service for every budget.
-            </p>
-          </div>
-
-          {/* Our Locations */}
-          <div>
-            <h4 className="text-lg font-semibold text-white mb-4">
-              Our Locations & Phone Numbers
-            </h4>
-            <ul className="space-y-4 grid grid-cols-2">
-              <li>
-                <div className="flex flex-col">
-                  <span className="font-medium text-white">
-                    Philadelphia, PA
-                  </span>
-                  <a
-                    href="tel:+12157289008"
-                    className="text-gray-400 hover:text-primary transition-colors"
-                  >
-                    215-728-9008
-                  </a>
-                </div>
+    <footer className="bg-[#102a38] text-[.88rem] leading-normal text-[#dbe6eb] [&_a:hover]:underline [&_a:hover]:underline-offset-3 [color-scheme:light] [font-family:Arial,Helvetica,sans-serif] [&_:is(a,button):focus-visible]:outline [&_:is(a,button):focus-visible]:outline-2 [&_:is(a,button):focus-visible]:outline-offset-[3px] [&_:is(a,button):focus-visible]:outline-[#318b22]">
+      <div
+        className={`${contentWidth} grid gap-4 py-8 min-[491px]:grid-cols-2 min-[491px]:gap-6 min-[1031px]:grid-cols-[.9fr_1.4fr_1.1fr_1fr]`}
+      >
+        <div>
+          <Link
+            href="/"
+            className="mb-2 inline-block text-[1.38rem] leading-tight font-extrabold text-white [font-family:Georgia,serif]"
+          >
+            MyHandymanInc.
+          </Link>
+          <p>
+            Home repairs, renovations, and practical resources for Connecticut
+            homeowners.
+          </p>
+        </div>
+        <div>
+          <h2 className={sectionHeading}>Our Locations</h2>
+          <ul className="m-0 grid list-none grid-cols-2 gap-2 p-0">
+            {offices.map(({ city, phone }, index) => (
+              <li key={city} className="grid">
+                <strong className="text-[.8rem] text-white">
+                  {city}
+                  {index === 0 && " · Main Office"}
+                </strong>
+                <a href={phone.href}>{phone.label}</a>
               </li>
-              <li>
-                <div className="flex flex-col">
-                  <span className="font-medium text-white">Plainfield, NJ</span>
-                  <a
-                    href="tel:+19738999626"
-                    className="text-gray-400 hover:text-primary transition-colors"
-                  >
-                    973-899-9626
-                  </a>
-                </div>
-              </li>
-              <li>
-                <div className="flex flex-col">
-                  <span className="font-medium text-white">Elmsford, NY</span>
-                  <a
-                    href="tel:+16464169009"
-                    className="text-gray-400 hover:text-primary transition-colors"
-                  >
-                    646-416-9009
-                  </a>
-                </div>
-              </li>
-              <li>
-                <div className="flex flex-col">
-                  <span className="font-medium text-white">Rockville, MD</span>
-                  <a
-                    href="tel:+13012009008"
-                    className="text-gray-400 hover:text-primary transition-colors"
-                  >
-                    301-200-9008
-                  </a>
-                </div>
-              </li>
-              <li>
-                <div className="flex flex-col">
-                  <span className="font-medium text-white">
-                    Stamford, CT{" "}
-                    <span className="text-xs text-primary">(Main Office)</span>
-                  </span>
-                  <a
-                    href="tel:+12034413471"
-                    className="text-gray-400 hover:text-primary transition-colors"
-                  >
-                    203-441-3471
-                  </a>
-                </div>
-              </li>
-            </ul>
-          </div>
-
-          {/* Email & Support + Service Hours */}
-          <div>
-            <div className="mb-6">
-              <h4 className="text-lg font-semibold text-white mb-3">
-                Email & Support
-              </h4>
-              <div className="flex items-start gap-3">
-                <Mail className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                <a
-                  href="mailto:myhandymaninc1@gmail.com"
-                  className="text-gray-400 hover:text-primary transition-colors break-all"
-                >
-                  myhandymaninc1@gmail.com
-                </a>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="text-lg font-semibold text-white mb-3">
-                Service Hours
-              </h4>
-              <div className="flex items-start gap-3">
-                <Clock className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                <div className="text-gray-400">
-                  <p>Mon-Fri: 8:00 AM – 6:00 PM</p>
-                  <p>Sat: 9:00 AM – 4:00 PM</p>
-                  <p>Sun: Closed</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Get a Free Estimate + Promise */}
-          <div>
-            <h4 className="text-lg font-semibold text-white mb-4">
-              Get a Free Estimate
-            </h4>
-            <p className="text-gray-400 mb-4">
-              Ready to start your next project? Contact us today for a free,
-              no-obligation estimate.
-            </p>
-            <Link href="/contact">
-              <Button className="w-full bg-primary hover:bg-primary/90">
-                Get Your Estimate
-              </Button>
-            </Link>
-            <div className="mt-6 pt-6 border-t border-gray-800">
-              <div className="flex items-center gap-2 text-sm text-gray-400">
-                <CheckCircle2 className="w-4 h-4 text-green-500" />
-                <span>Licensed & Insured</span>
-              </div>
-              <div className="flex items-center gap-2 mt-2 text-sm text-gray-400">
-                <CheckCircle2 className="w-4 h-4 text-green-500" />
-                <span>100% Satisfaction Guaranteed</span>
-              </div>
-            </div>
-          </div>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h2 className={sectionHeading}>Email & Support</h2>
+          <p className="flex items-start gap-1.5 [overflow-wrap:anywhere] [&>svg]:mt-0.5 [&>svg]:shrink-0">
+            <Mail size={16} aria-hidden="true" />
+            <a href={`mailto:${supportEmail}`}>{supportEmail}</a>
+          </p>
+          <h2 className={`${sectionHeading} mt-3.5`}>Service Hours</h2>
+          <p className="flex items-start gap-1.5 [overflow-wrap:anywhere] [&>svg]:mt-0.5 [&>svg]:shrink-0">
+            <Clock size={16} aria-hidden="true" />
+            <span>
+              Mon–Fri, 8 AM–6 PM
+              <br />
+              Sat, 9 AM–4 PM
+              <br />
+              Sun, closed
+            </span>
+          </p>
+        </div>
+        <div>
+          <h2 className={sectionHeading}>Get a Free Estimate</h2>
+          <p>Tell us what you have in mind for your home.</p>
+          <Link
+            href="/#estimate"
+            className="mt-3 inline-flex min-h-10 items-center justify-center rounded-[7px] bg-[#2d7619] px-4 py-2 text-center leading-tight font-bold text-white transition-colors hover:bg-[#205912]"
+          >
+            Get Your Estimate
+          </Link>
+          <ul className="mt-3 list-none p-0 text-[.8rem] [&>li]:flex [&>li]:items-center [&>li]:gap-1.5 [&_svg]:shrink-0 [&_svg]:text-[#a9de94]">
+            <li>
+              <CheckCircle2 size={15} aria-hidden="true" /> Licensed &amp;
+              Insured
+            </li>
+            <li>
+              <CheckCircle2 size={15} aria-hidden="true" /> 100% Satisfaction
+              Guaranteed
+            </li>
+          </ul>
         </div>
       </div>
-
-      {/* Bottom Bar */}
-      <div className="border-t border-gray-800">
-        <div className="max-w-7xlf mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
-            <p>
-              &copy; {new Date().getFullYear()} MyHandyMan. All rights reserved.
-            </p>
-            <div className="flex gap-6">
-              <Link
-                href="/privacy"
-                className="hover:text-primary transition-colors"
-              >
-                Privacy Policy
-              </Link>
-              <Link
-                href="/terms"
-                className="hover:text-primary transition-colors"
-              >
-                Terms of Service
-              </Link>
-              <Link
-                href="/sitemap.xml"
-                className="hover:text-primary transition-colors"
-              >
-                Sitemap
-              </Link>
-              <Link
-                href="mailto:snashct@gmail.com"
-                className="hover:text-primary transition-colors underline-offset-1"
-                title="Made with 💖 in Stamford, Conn."
-              >
-                Made by Siddiq
-              </Link>
-            </div>
-          </div>
+      <div className="border-t border-white/20">
+        <div
+          className={`${contentWidth} flex flex-wrap justify-between gap-x-4 gap-y-2 py-3.5 text-[.8rem]`}
+        >
+          <p>
+            © {new Date().getFullYear()} MyHandymanInc. All rights reserved.
+          </p>
+          <nav
+            className="flex flex-wrap gap-x-4 gap-y-2"
+            aria-label="Footer navigation"
+          >
+            <Link href="/privacy">Privacy Policy</Link>
+            <Link href="/terms">Terms of Service</Link>
+            <Link href="/sitemap.xml">Sitemap</Link>
+            <a href="mailto:snashct@gmail.com">Made by Siddiq</a>
+          </nav>
         </div>
       </div>
     </footer>
   );
-};
-
-export default HomeFooter;
+}
